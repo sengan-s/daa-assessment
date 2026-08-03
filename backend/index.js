@@ -79,6 +79,7 @@ app.post('/api/evaluate', async (req, res) => {
 
 // Final submit endpoint
 app.post('/api/submit', async (req, res) => {
+  console.log('Received /api/submit request for:', req.body.rollNo);
   const { rollNo, name, codePerProblem, languagePerProblem, timeTaken, violations } = req.body;
   
   if (!rollNo || !name) {
@@ -101,9 +102,12 @@ app.post('/api/submit', async (req, res) => {
     }
 
     const { mergeSort, binarySearch, matrixMult } = scores;
+    console.log('Finished evaluating all problems. Scores:', scores);
 
     // Check if candidate already exists
+    console.log('Executing DB check for rollNo:', rollNo);
     db.get('SELECT id FROM candidates WHERE rollNo = ?', [rollNo], (err, row) => {
+      console.log('DB check completed. err:', err, 'row:', !!row);
       if (err) return res.status(500).json({ success: false, error: 'Database error' });
       
       const submittedAt = new Date().toISOString();

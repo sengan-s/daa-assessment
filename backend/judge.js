@@ -16,7 +16,7 @@ function runTestCase(solutionCode, testCase, problem, language = 'java') {
       const pyCode = problem.generateMainPython(solutionCode, testCase);
       fs.writeFileSync(mainFile, pyCode);
       
-      const py = spawn('python', ['main.py'], { cwd: tempDir });
+      const py = spawn('python3', ['main.py'], { cwd: tempDir });
       py.on('error', (err) => resolve({ status: 'FAIL', reason: 'Runtime Error', details: 'Failed to start python: ' + err.message }));
       
       let output = '';
