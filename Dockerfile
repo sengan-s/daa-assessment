@@ -28,6 +28,12 @@ RUN cd backend && npm install
 COPY frontend/ ./frontend/
 COPY backend/ ./backend/
 
+# Accept build arguments for Vite
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
 # Build the frontend
 RUN cd frontend && npm run build
 
