@@ -11,6 +11,25 @@ const dbPath = process.env.DB_PATH || path.join(__dirname, 'sqlite.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database', err.message);
+  } else {
+    db.run(`CREATE TABLE IF NOT EXISTS candidates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      rollNo TEXT UNIQUE,
+      name TEXT,
+      mergeSortMarks INTEGER,
+      binarySearchMarks INTEGER,
+      matrixMultMarks INTEGER,
+      totalScore INTEGER,
+      timeTaken INTEGER,
+      violations INTEGER,
+      submittedAt TEXT,
+      codeMergeSort TEXT,
+      codeBinarySearch TEXT,
+      codeMatrixMult TEXT,
+      languageMergeSort TEXT,
+      languageBinarySearch TEXT,
+      languageMatrixMult TEXT
+    )`);
   }
 });
 
