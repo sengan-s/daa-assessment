@@ -22,69 +22,86 @@ module.exports = {
       { input: { nums1: [4,5,6,0,0,0], m: 3, nums2: [1,2,3], n: 3 }, expected: "[1,2,3,4,5,6]", isHidden: true },
       { input: { nums1: [0,0,0,0], m: 0, nums2: [1,2,3,4], n: 4 }, expected: "[1,2,3,4]", isHidden: true }
     ],
-    // Function to generate the wrapper Main.java for this problem
-    generateMain: (solutionCode, testCase) => {
-      const { nums1, m, nums2, n } = testCase.input;
-      return `
-import java.util.Arrays;
+    generateMain: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { nums1, m, nums2, n } = tc.input;
+        return `        if (tcIndex == ${i}) {
+            int[] nums1 = ${JSON.stringify(nums1).replace(/\[/g, '{').replace(/\]/g, '}')};
+            int m = ${m};
+            int[] nums2 = ${JSON.stringify(nums2).replace(/\[/g, '{').replace(/\]/g, '}')};
+            int n = ${n};
+            Solution.merge(nums1, m, nums2, n);
+            System.out.print(java.util.Arrays.toString(nums1).replaceAll(" ", ""));
+            return;
+        }`;
+      }).join('\n');
+
+      return `import java.util.Arrays;
 ${solutionCode}
 
 public class Main {
     public static void main(String[] args) {
-        int[] nums1 = ${JSON.stringify(nums1).replace(/\[/g, '{').replace(/\]/g, '}')};
-        int m = ${m};
-        int[] nums2 = ${JSON.stringify(nums2).replace(/\[/g, '{').replace(/\]/g, '}')};
-        int n = ${n};
-        Solution.merge(nums1, m, nums2, n);
-        
-        // Remove spaces after commas to match the expected format exactly
-        System.out.print(Arrays.toString(nums1).replaceAll(" ", ""));
+        int tcIndex = Integer.parseInt(args[0]);
+${mainBlocks}
     }
-}
-`;
+}`;
     },
-    generateMainPython: (solutionCode, testCase) => {
-      const { nums1, m, nums2, n } = testCase.input;
-      return `
-import json
+    generateMainPython: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { nums1, m, nums2, n } = tc.input;
+        return `    if tc_index == ${i}:
+        nums1 = json.loads('${JSON.stringify(nums1)}')
+        m = ${m}
+        nums2 = json.loads('${JSON.stringify(nums2)}')
+        n = ${n}
+        sol.merge(nums1, m, nums2, n)
+        print(json.dumps(nums1).replace(' ', ''))`;
+      }).join('\n');
+
+      return `import json
+import sys
 
 ${solutionCode}
 
 if __name__ == '__main__':
-    nums1 = json.loads('${JSON.stringify(nums1)}')
-    m = ${m}
-    nums2 = json.loads('${JSON.stringify(nums2)}')
-    n = ${n}
-    Solution().merge(nums1, m, nums2, n)
-    print(json.dumps(nums1).replace(" ", ""))
+    tc_index = int(sys.argv[1])
+    sol = Solution()
+${mainBlocks}
 `;
     },
-    generateMainC: (solutionCode, testCase) => {
-      const { nums1, m, nums2, n } = testCase.input;
-      const cNums1 = nums1.length ? nums1.join(',') : '0';
-      const cNums2 = nums2.length ? nums2.join(',') : '0';
-      return `
-#include <stdio.h>
+    generateMainC: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { nums1, m, nums2, n } = tc.input;
+        const cNums1 = nums1.length ? nums1.join(',') : '0';
+        const cNums2 = nums2.length ? nums2.join(',') : '0';
+        return `    if (tcIndex == ${i}) {
+        int nums1[${nums1.length || 1}] = {${cNums1}};
+        int m = ${m};
+        int nums2[${nums2.length || 1}] = {${cNums2}};
+        int n = ${n};
+        merge(nums1, ${nums1.length}, m, nums2, ${nums2.length}, n);
+        
+        printf("[");
+        for(int i=0; i<${nums1.length}; i++) {
+            printf("%d", nums1[i]);
+            if(i < ${nums1.length}-1) printf(",");
+        }
+        printf("]");
+        return 0;
+    }`;
+      }).join('\n');
+
+      return `#include <stdio.h>
 #include <stdlib.h>
 
 ${solutionCode}
 
-int main() {
-    int nums1[${nums1.length || 1}] = {${cNums1}};
-    int m = ${m};
-    int nums2[${nums2.length || 1}] = {${cNums2}};
-    int n = ${n};
-    merge(nums1, ${nums1.length}, m, nums2, ${nums2.length}, n);
-    
-    printf("[");
-    for(int i=0; i<${nums1.length}; i++) {
-        printf("%d", nums1[i]);
-        if(i < ${nums1.length}-1) printf(",");
-    }
-    printf("]");
+int main(int argc, char *argv[]) {
+    if (argc < 2) return 1;
+    int tcIndex = atoi(argv[1]);
+${mainBlocks}
     return 0;
-}
-`;
+}`;
     }
   },
   binarySearch: {
@@ -112,52 +129,72 @@ int main() {
       { input: { arr: [], target: 1 }, expected: "-1", isHidden: true },
       { input: { arr: [1,2,3,4,5], target: 1 }, expected: "0", isHidden: true }
     ],
-    generateMain: (solutionCode, testCase) => {
-      const { arr, target } = testCase.input;
-      return `
-${solutionCode}
+    generateMain: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { arr, target } = tc.input;
+        return `        if (tcIndex == ${i}) {
+            int[] arr = ${JSON.stringify(arr).replace(/\[/g, '{').replace(/\]/g, '}')};
+            int target = ${target};
+            int result = Solution.binarySearch(arr, target);
+            System.out.print(result);
+            return;
+        }`;
+      }).join('\n');
+
+      return `${solutionCode}
 
 public class Main {
     public static void main(String[] args) {
-        int[] arr = ${JSON.stringify(arr).replace(/\[/g, '{').replace(/\]/g, '}')};
-        int target = ${target};
-        int result = Solution.binarySearch(arr, target);
-        System.out.print(result);
+        int tcIndex = Integer.parseInt(args[0]);
+${mainBlocks}
     }
-}
-`;
+}`;
     },
-    generateMainPython: (solutionCode, testCase) => {
-      const { arr, target } = testCase.input;
-      return `
-import json
+    generateMainPython: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { arr, target } = tc.input;
+        return `    if tc_index == ${i}:
+        arr = json.loads('${JSON.stringify(arr)}')
+        target = ${target}
+        result = sol.binarySearch(arr, target)
+        print(result)`;
+      }).join('\n');
+
+      return `import json
+import sys
 
 ${solutionCode}
 
 if __name__ == '__main__':
-    arr = json.loads('${JSON.stringify(arr)}')
-    target = ${target}
-    result = Solution().binarySearch(arr, target)
-    print(result)
+    tc_index = int(sys.argv[1])
+    sol = Solution()
+${mainBlocks}
 `;
     },
-    generateMainC: (solutionCode, testCase) => {
-      const { arr, target } = testCase.input;
-      const cArr = arr.length ? arr.join(',') : '0';
-      return `
-#include <stdio.h>
+    generateMainC: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { arr, target } = tc.input;
+        const cArr = arr.length ? arr.join(',') : '0';
+        return `    if (tcIndex == ${i}) {
+        int arr[${arr.length || 1}] = {${cArr}};
+        int target = ${target};
+        int result = binarySearch(arr, ${arr.length}, target);
+        printf("%d", result);
+        return 0;
+    }`;
+      }).join('\n');
+
+      return `#include <stdio.h>
 #include <stdlib.h>
 
 ${solutionCode}
 
-int main() {
-    int arr[${arr.length || 1}] = {${cArr}};
-    int target = ${target};
-    int result = binarySearch(arr, ${arr.length}, target);
-    printf("%d", result);
+int main(int argc, char *argv[]) {
+    if (argc < 2) return 1;
+    int tcIndex = atoi(argv[1]);
+${mainBlocks}
     return 0;
-}
-`;
+}`;
     }
   },
   matrixMult: {
@@ -174,98 +211,106 @@ int main() {
     def multiply(self, A, B):
         # candidate writes code here
         return []`,
-    starterCodeC: `void multiply(int* A, int A_rows, int A_cols, int* B, int B_rows, int B_cols, int* res) {
-    // candidate writes code here
+    starterCodeC: `int* multiply(int* A, int A_rows, int A_cols, int* B, int B_rows, int B_cols, int* out_rows, int* out_cols) {
+    // candidate writes code here - return a flattened 1D array representing the 2D output matrix
+    *out_rows = 0;
+    *out_cols = 0;
+    return NULL;
 }`,
     testCases: [
-      { input: { A: [[1,2],[3,4]], B: [[5,6],[7,8]] }, expected: "[[19,22],[43,50]]", isHidden: false },
-      { input: { A: [[1,0],[0,1]], B: [[2,3],[4,5]] }, expected: "[[2,3],[4,5]]", isHidden: false },
-      { input: { A: [[1,2,3]], B: [[1],[1],[1]] }, expected: "[[6]]", isHidden: false },
-      { input: { A: [[2]], B: [[3]] }, expected: "[[6]]", isHidden: true },
-      { input: { A: [[1,1],[1,1]], B: [[1,1],[1,1]] }, expected: "[[2,2],[2,2]]", isHidden: true }
+      { input: { A: [[1,2],[3,4]], B: [[2,0],[1,2]] }, expected: "[[4,4],[10,8]]", isHidden: false },
+      { input: { A: [[1,2,3]], B: [[1],[2],[3]] }, expected: "[[14]]", isHidden: false },
+      { input: { A: [[1,0],[0,1]], B: [[5,6],[7,8]] }, expected: "[[5,6],[7,8]]", isHidden: true }
     ],
-    generateMain: (solutionCode, testCase) => {
-      const { A, B } = testCase.input;
-      
-      const formatMatrix = (matrix) => {
-        if (!matrix || matrix.length === 0) return 'new int[0][0]';
-        let str = '{';
-        for(let i=0; i<matrix.length; i++) {
-          str += '{' + matrix[i].join(',') + '}';
-          if(i < matrix.length - 1) str += ',';
-        }
-        str += '}';
-        return str;
-      };
+    generateMain: (solutionCode, allTestCases) => {
+      const formatMatrix = (m) => m.length === 0 ? '{}' : '{' + m.map(row => '{' + row.join(',') + '}').join(',') + '}';
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { A, B } = tc.input;
+        return `        if (tcIndex == ${i}) {
+            int[][] A = ${formatMatrix(A)};
+            int[][] B = ${formatMatrix(B)};
+            int[][] result = Solution.multiply(A, B);
+            String out = java.util.Arrays.deepToString(result).replaceAll(" ", "");
+            System.out.print(out);
+            return;
+        }`;
+      }).join('\n');
 
-      return `
-import java.util.Arrays;
+      return `import java.util.Arrays;
 ${solutionCode}
 
 public class Main {
     public static void main(String[] args) {
-        int[][] A = ${formatMatrix(A)};
-        int[][] B = ${formatMatrix(B)};
-        int[][] result = Solution.multiply(A, B);
-        
-        // Print 2D array without spaces to match expected output format
-        String out = Arrays.deepToString(result).replaceAll(" ", "");
-        System.out.print(out);
+        int tcIndex = Integer.parseInt(args[0]);
+${mainBlocks}
     }
-}
-`;
+}`;
     },
-    generateMainPython: (solutionCode, testCase) => {
-      const { A, B } = testCase.input;
-      return `
-import json
+    generateMainPython: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { A, B } = tc.input;
+        return `    if tc_index == ${i}:
+        A = json.loads('${JSON.stringify(A)}')
+        B = json.loads('${JSON.stringify(B)}')
+        result = sol.multiply(A, B)
+        print(json.dumps(result).replace(" ", ""))`;
+      }).join('\n');
+
+      return `import json
+import sys
 
 ${solutionCode}
 
 if __name__ == '__main__':
-    A = json.loads('${JSON.stringify(A)}')
-    B = json.loads('${JSON.stringify(B)}')
-    result = Solution().multiply(A, B)
-    print(json.dumps(result).replace(" ", ""))
+    tc_index = int(sys.argv[1])
+    sol = Solution()
+${mainBlocks}
 `;
     },
-    generateMainC: (solutionCode, testCase) => {
-      const { A, B } = testCase.input;
-      const flatA = A.flat();
-      const flatB = B.flat();
-      return `
-#include <stdio.h>
+    generateMainC: (solutionCode, allTestCases) => {
+      let mainBlocks = allTestCases.map((tc, i) => {
+        const { A, B } = tc.input;
+        const flatA = A.flat();
+        const flatB = B.flat();
+        return `    if (tcIndex == ${i}) {
+        int A[] = {${flatA.join(',')}};
+        int A_rows = ${A.length};
+        int A_cols = ${A[0] ? A[0].length : 0};
+        
+        int B[] = {${flatB.join(',')}};
+        int B_rows = ${B.length};
+        int B_cols = ${B[0] ? B[0].length : 0};
+        
+        int out_rows, out_cols;
+        int* result = multiply(A, A_rows, A_cols, B, B_rows, B_cols, &out_rows, &out_cols);
+        
+        printf("[");
+        for (int r = 0; r < out_rows; r++) {
+            printf("[");
+            for (int c = 0; c < out_cols; c++) {
+                printf("%d", result[r * out_cols + c]);
+                if (c < out_cols - 1) printf(",");
+            }
+            printf("]");
+            if (r < out_rows - 1) printf(",");
+        }
+        printf("]");
+        if (result != NULL) free(result);
+        return 0;
+    }`;
+      }).join('\n');
+
+      return `#include <stdio.h>
 #include <stdlib.h>
 
 ${solutionCode}
 
-int main() {
-    int A[] = {${flatA.join(',')}};
-    int A_rows = ${A.length};
-    int A_cols = ${A[0].length};
-    
-    int B[] = {${flatB.join(',')}};
-    int B_rows = ${B.length};
-    int B_cols = ${B[0].length};
-    
-    int res[${A.length * B[0].length}];
-    
-    multiply(A, A_rows, A_cols, B, B_rows, B_cols, res);
-    
-    printf("[");
-    for(int i=0; i<A_rows; i++) {
-        printf("[");
-        for(int j=0; j<B_cols; j++) {
-            printf("%d", res[i * B_cols + j]);
-            if(j < B_cols - 1) printf(",");
-        }
-        printf("]");
-        if(i < A_rows - 1) printf(",");
-    }
-    printf("]");
+int main(int argc, char *argv[]) {
+    if (argc < 2) return 1;
+    int tcIndex = atoi(argv[1]);
+${mainBlocks}
     return 0;
-}
-`;
+}`;
     }
   }
 };

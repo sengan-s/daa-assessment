@@ -3,210 +3,190 @@ const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
 
-/**
- * Runs a single test case for a given problem and code.
- */
-function runTestCase(solutionCode, testCase, problem, language = 'java') {
+function spawnAndWait(command, args, cwd) {
   return new Promise((resolve) => {
-    // 1. Create a unique temp directory
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'judge-'));
+    const child = spawn(command, args, { cwd });
+    let output = '';
+    let runtimeError = '';
+    let isTimeout = false;
 
-    if (language === 'python') {
-      const mainFile = path.join(tempDir, 'main.py');
-      const pyCode = problem.generateMainPython(solutionCode, testCase);
-      fs.writeFileSync(mainFile, pyCode);
-      
-      const py = spawn('python3', ['main.py'], { cwd: tempDir });
-      py.on('error', (err) => resolve({ status: 'FAIL', reason: 'Runtime Error', details: 'Failed to start python: ' + err.message }));
-      
-      let output = '';
-      let runtimeError = '';
-      let isTimeout = false;
+    const timeoutTimer = setTimeout(() => {
+      isTimeout = true;
+      child.kill('SIGKILL');
+    }, 5000);
 
-      const timeoutTimer = setTimeout(() => {
-        isTimeout = true;
-        py.kill('SIGKILL');
-      }, 5000);
-
-      py.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      py.stderr.on('data', (data) => {
-        runtimeError += data.toString();
-      });
-
-      py.on('close', (code) => {
-        clearTimeout(timeoutTimer);
-        try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch (e) {}
-
-        if (isTimeout) return resolve({ status: 'FAIL', reason: 'Time Limit Exceeded' });
-        if (code !== 0) return resolve({ status: 'FAIL', reason: 'Runtime Error', details: runtimeError });
-
-        const actualOutput = output.trim();
-        if (actualOutput === testCase.expected) {
-          return resolve({ status: 'PASS', actual: actualOutput, expected: testCase.expected });
-        } else {
-          return resolve({ status: 'FAIL', reason: 'Wrong Answer', actual: actualOutput, expected: testCase.expected });
-        }
-      });
-      return;
-    }
-
-    if (language === 'c') {
-      const mainFile = path.join(tempDir, 'main.c');
-      const cCode = problem.generateMainC(solutionCode, testCase);
-      fs.writeFileSync(mainFile, cCode);
-      
-      const gcc = spawn('gcc', ['main.c', '-o', 'main'], { cwd: tempDir });
-      gcc.on('error', (err) => resolve({ status: 'FAIL', reason: 'Compilation Error', details: 'Failed to start gcc: ' + err.message }));
-      
-      let compileError = '';
-      gcc.stderr.on('data', (data) => {
-        compileError += data.toString();
-      });
-      
-      gcc.on('close', (code) => {
-        if (code !== 0) {
-          try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch(e){}
-          return resolve({ status: 'FAIL', reason: 'Compilation Error', details: compileError });
-        }
-        
-        const exePath = path.join(tempDir, os.platform() === 'win32' ? 'main.exe' : 'main');
-        const cRun = spawn(exePath, [], { cwd: tempDir });
-        cRun.on('error', (err) => resolve({ status: 'FAIL', reason: 'Runtime Error', details: 'Failed to start C executable: ' + err.message }));
-        
-        let output = '';
-        let runtimeError = '';
-        let isTimeout = false;
-        
-        const timeoutTimer = setTimeout(() => {
-          isTimeout = true;
-          cRun.kill('SIGKILL');
-        }, 5000);
-        
-        cRun.stdout.on('data', (data) => {
-          output += data.toString();
-        });
-        
-        cRun.stderr.on('data', (data) => {
-          runtimeError += data.toString();
-        });
-        
-        cRun.on('close', (code) => {
-          clearTimeout(timeoutTimer);
-          try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch (e) {}
-          
-          if (isTimeout) return resolve({ status: 'FAIL', reason: 'Time Limit Exceeded' });
-          if (code !== 0) return resolve({ status: 'FAIL', reason: 'Runtime Error', details: runtimeError });
-          
-          const actualOutput = output.trim();
-          if (actualOutput === testCase.expected) {
-            return resolve({ status: 'PASS', actual: actualOutput, expected: testCase.expected });
-          } else {
-            return resolve({ status: 'FAIL', reason: 'Wrong Answer', actual: actualOutput, expected: testCase.expected });
-          }
-        });
-      });
-      return;
-    }
-
-    // Java execution
-    const mainFile = path.join(tempDir, 'Main.java');
-
-    // 2. Generate the Main.java content
-    const javaCode = problem.generateMain(solutionCode, testCase);
-
-    // 3. Write to file
-    fs.writeFileSync(mainFile, javaCode);
-
-    // 4. Compile the code
-    const javac = spawn('javac', ['Main.java'], { cwd: tempDir });
-    javac.on('error', (err) => resolve({ status: 'FAIL', reason: 'Compilation Error', details: 'Failed to start javac: ' + err.message }));
-
-    let compileError = '';
-    javac.stderr.on('data', (data) => {
-      compileError += data.toString();
+    child.stdout.on('data', (data) => {
+      output += data.toString();
     });
 
-    javac.on('close', (code) => {
-      if (code !== 0) {
-        // Compilation failed
-        fs.rmSync(tempDir, { recursive: true, force: true });
-        return resolve({
-          status: 'FAIL',
-          reason: 'Compilation Error',
-          details: compileError
-        });
-      }
+    child.stderr.on('data', (data) => {
+      runtimeError += data.toString();
+    });
 
-      // 5. Run the code
-      const java = spawn('java', ['Main'], { cwd: tempDir });
-      java.on('error', (err) => resolve({ status: 'FAIL', reason: 'Runtime Error', details: 'Failed to start java: ' + err.message }));
-      
-      let output = '';
-      let runtimeError = '';
-      let isTimeout = false;
+    child.on('error', (err) => resolve({ status: 'FAIL', reason: 'Runtime Error', details: 'Failed to start process: ' + err.message }));
 
-      // Set timeout
-      const timeoutTimer = setTimeout(() => {
-        isTimeout = true;
-        java.kill('SIGKILL');
-      }, 5000);
-
-      java.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      java.stderr.on('data', (data) => {
-        runtimeError += data.toString();
-      });
-
-      java.on('close', (code) => {
-        clearTimeout(timeoutTimer);
-        
-        // Clean up temp dir
-        try {
-          fs.rmSync(tempDir, { recursive: true, force: true });
-        } catch (e) {
-          console.error('Error cleaning up temp dir', e);
-        }
-
-        if (isTimeout) {
-          return resolve({
-            status: 'FAIL',
-            reason: 'Time Limit Exceeded'
-          });
-        }
-
-        if (code !== 0) {
-          return resolve({
-            status: 'FAIL',
-            reason: 'Runtime Error',
-            details: runtimeError
-          });
-        }
-
-        const actualOutput = output.trim();
-        if (actualOutput === testCase.expected) {
-          return resolve({
-            status: 'PASS',
-            actual: actualOutput,
-            expected: testCase.expected
-          });
-        } else {
-          return resolve({
-            status: 'FAIL',
-            reason: 'Wrong Answer',
-            actual: actualOutput,
-            expected: testCase.expected
-          });
-        }
-      });
+    child.on('close', (code) => {
+      clearTimeout(timeoutTimer);
+      if (isTimeout) return resolve({ status: 'FAIL', reason: 'Time Limit Exceeded' });
+      if (code !== 0) return resolve({ status: 'FAIL', reason: 'Runtime Error', details: runtimeError });
+      resolve({ status: 'PASS', actual: output.trim() });
     });
   });
 }
 
-module.exports = {
-  runTestCase
-};
+function compileCode(command, args, cwd) {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { cwd });
+    let compileError = '';
+    child.stderr.on('data', (data) => {
+      compileError += data.toString();
+    });
+    child.on('error', (err) => resolve({ success: false, error: 'Failed to start compiler: ' + err.message }));
+    child.on('close', (code) => {
+      if (code !== 0) {
+        return resolve({ success: false, error: compileError });
+      }
+      resolve({ success: true });
+    });
+  });
+}
+
+async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'judge-'));
+  const results = [];
+  let passedCount = 0;
+
+  try {
+    if (language === 'python') {
+      const mainFile = path.join(tempDir, 'main.py');
+      const pyCode = problem.generateMainPython(solutionCode, testCasesToRun);
+      fs.writeFileSync(mainFile, pyCode);
+
+      for (let i = 0; i < testCasesToRun.length; i++) {
+        const tc = testCasesToRun[i];
+        const res = await spawnAndWait('python3', ['main.py', i.toString()], tempDir);
+        
+        const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
+        if (res.status === 'PASS') {
+          if (res.actual === tc.expected) {
+            passedCount++;
+            formattedResult.status = 'PASS';
+          } else {
+            formattedResult.status = 'FAIL';
+            formattedResult.reason = 'Wrong Answer';
+          }
+        }
+        if (!tc.isHidden) {
+          formattedResult.expected = tc.expected;
+          formattedResult.actual = res.actual;
+          formattedResult.reason = formattedResult.reason || res.reason;
+          formattedResult.details = res.details;
+        } else if (formattedResult.status === 'FAIL') {
+          formattedResult.reason = 'Hidden Test Case Failed';
+        }
+        results.push(formattedResult);
+      }
+    } 
+    else if (language === 'c') {
+      const mainFile = path.join(tempDir, 'main.c');
+      const cCode = problem.generateMainC(solutionCode, testCasesToRun);
+      fs.writeFileSync(mainFile, cCode);
+
+      const compRes = await compileCode('gcc', ['main.c', '-o', 'main'], tempDir);
+      if (!compRes.success) {
+        for (let i = 0; i < testCasesToRun.length; i++) {
+          const formattedResult = {
+            index: i + 1, isHidden: testCasesToRun[i].isHidden, status: 'FAIL', reason: 'Compilation Error'
+          };
+          if (!testCasesToRun[i].isHidden) formattedResult.details = compRes.error;
+          else formattedResult.reason = 'Hidden Test Case Failed';
+          results.push(formattedResult);
+        }
+      } else {
+        const exePath = path.join(tempDir, os.platform() === 'win32' ? 'main.exe' : 'main');
+        for (let i = 0; i < testCasesToRun.length; i++) {
+          const tc = testCasesToRun[i];
+          const res = await spawnAndWait(exePath, [i.toString()], tempDir);
+          
+          const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
+          if (res.status === 'PASS') {
+            if (res.actual === tc.expected) {
+              passedCount++;
+              formattedResult.status = 'PASS';
+            } else {
+              formattedResult.status = 'FAIL';
+              formattedResult.reason = 'Wrong Answer';
+            }
+          }
+          if (!tc.isHidden) {
+            formattedResult.expected = tc.expected;
+            formattedResult.actual = res.actual;
+            formattedResult.reason = formattedResult.reason || res.reason;
+            formattedResult.details = res.details;
+          } else if (formattedResult.status === 'FAIL') {
+            formattedResult.reason = 'Hidden Test Case Failed';
+          }
+          results.push(formattedResult);
+        }
+      }
+    }
+    else {
+      // Java
+      const mainFile = path.join(tempDir, 'Main.java');
+      const javaCode = problem.generateMain(solutionCode, testCasesToRun);
+      fs.writeFileSync(mainFile, javaCode);
+
+      const compRes = await compileCode('javac', ['Main.java'], tempDir);
+      if (!compRes.success) {
+        for (let i = 0; i < testCasesToRun.length; i++) {
+          const formattedResult = {
+            index: i + 1, isHidden: testCasesToRun[i].isHidden, status: 'FAIL', reason: 'Compilation Error'
+          };
+          if (!testCasesToRun[i].isHidden) formattedResult.details = compRes.error;
+          else formattedResult.reason = 'Hidden Test Case Failed';
+          results.push(formattedResult);
+        }
+      } else {
+        for (let i = 0; i < testCasesToRun.length; i++) {
+          const tc = testCasesToRun[i];
+          const res = await spawnAndWait('java', ['Main', i.toString()], tempDir);
+          
+          const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
+          if (res.status === 'PASS') {
+            if (res.actual === tc.expected) {
+              passedCount++;
+              formattedResult.status = 'PASS';
+            } else {
+              formattedResult.status = 'FAIL';
+              formattedResult.reason = 'Wrong Answer';
+            }
+          }
+          if (!tc.isHidden) {
+            formattedResult.expected = tc.expected;
+            formattedResult.actual = res.actual;
+            formattedResult.reason = formattedResult.reason || res.reason;
+            formattedResult.details = res.details;
+          } else if (formattedResult.status === 'FAIL') {
+            formattedResult.reason = 'Hidden Test Case Failed';
+          }
+          results.push(formattedResult);
+        }
+      }
+    }
+  } finally {
+    try {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    } catch (e) {}
+  }
+
+  const marks = Math.round((passedCount / problem.testCases.length) * problem.marks);
+
+  return {
+    results,
+    passedCount,
+    totalCount: problem.testCases.length,
+    marks
+  };
+}
+
+module.exports = { evaluateCode };

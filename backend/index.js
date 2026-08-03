@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const problems = require('./problems');
-const { runTestCase } = require('./judge');
+const { evaluateCode } = require('./judge');
 
 // Initialize SQLite Database
 const dbPath = process.env.DB_PATH || path.join(__dirname, 'sqlite.db');
@@ -43,45 +43,8 @@ async function evaluateProblem(problemId, code, language, runHidden) {
   if (!problem) throw new Error('Problem not found');
 
   const testCasesToRun = runHidden ? problem.testCases : problem.testCases.filter(tc => !tc.isHidden);
-  const results = [];
-  let passedCount = 0;
-
-  for (let i = 0; i < testCasesToRun.length; i++) {
-    const tc = testCasesToRun[i];
-    const result = await runTestCase(code, tc, problem, language);
-    
-    // Format the result to hide expected output/reason for hidden cases if failed
-    const formattedResult = {
-      index: i + 1,
-      isHidden: tc.isHidden,
-      status: result.status
-    };
-
-    if (result.status === 'PASS') {
-      passedCount++;
-    }
-
-    if (!tc.isHidden) {
-      formattedResult.expected = tc.expected;
-      formattedResult.actual = result.actual;
-      formattedResult.reason = result.reason;
-      formattedResult.details = result.details;
-    } else if (result.status === 'FAIL') {
-      // Don't leak exact failure details for hidden test cases
-      formattedResult.reason = 'Hidden Test Case Failed';
-    }
-
-    results.push(formattedResult);
-  }
-
-  const marks = Math.round((passedCount / problem.testCases.length) * problem.marks);
-
-  return {
-    results,
-    passedCount,
-    totalCount: problem.testCases.length,
-    marks
-  };
+  
+  return await evaluateCode(problem, code, language, testCasesToRun);
 }
 
 
