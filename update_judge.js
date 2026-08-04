@@ -1,4 +1,6 @@
 const fs = require('fs');
+
+const code = `const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
@@ -64,8 +66,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
 
       for (let i = 0; i < testCasesToRun.length; i++) {
         const tc = testCasesToRun[i];
-        const pythonExecutable = os.platform() === 'win32' ? 'python' : 'python3';
-        const res = await spawnAndWait(pythonExecutable, ['main.py', i.toString()], tempDir);
+        const res = await spawnAndWait('python3', ['main.py', i.toString()], tempDir);
         
         const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
         if (res.status === 'PASS') {
@@ -191,3 +192,6 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
 }
 
 module.exports = { evaluateCode };
+`;
+
+fs.writeFileSync('backend/judge.js', code);
