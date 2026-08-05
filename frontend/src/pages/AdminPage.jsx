@@ -41,13 +41,35 @@ export default function AdminPage() {
 
   const fetchResults = async () => {
     try {
-      const res = await fetch('/api/admin/results');
-      const data = await res.json();
-      if (data.success) {
-        setResults(data.results);
-      }
+      const { data: supaData, error } = await supabase
+        .from('submissions')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedResults = supaData.map(row => {
+        const d = row.data || {};
+        return {
+          id: row.id,
+          rollNo: row.roll_no,
+          name: row.student_name,
+          totalScore: row.total_marks,
+          mergeSortMarks: d.results?.mergeSort?.marks || 0,
+          binarySearchMarks: d.results?.binarySearch?.marks || 0,
+          matrixMultMarks: d.results?.matrixMult?.marks || 0,
+          timeTaken: 3600 - (d.timeRemaining || 3600),
+          violations: d.warnings || 0,
+          submittedAt: row.submitted_at,
+          code: d.code,
+          runResults: d.results
+        };
+      });
+
+      setResults(formattedResults);
     } catch (err) {
-      toast.error('Failed to fetch results');
+      console.error(err);
+      toast.error('Failed to fetch results from Supabase');
     }
   };
 
@@ -57,16 +79,18 @@ export default function AdminPage() {
     
     const toastId = toast.loading('Deleting...');
     try {
-      const res = await fetch(`/api/admin/results/${rollNo}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) {
-        toast.success('Candidate deleted', { id: toastId });
-        setResults(prev => prev.filter(r => r.rollNo !== rollNo));
-      } else {
-        toast.error('Failed to delete', { id: toastId });
-      }
+      const { error } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('roll_no', rollNo);
+        
+      if (error) throw error;
+
+      toast.success('Candidate deleted', { id: toastId });
+      setResults(prev => prev.filter(r => r.rollNo !== rollNo));
     } catch (err) {
-      toast.error('Network error', { id: toastId });
+      console.error(err);
+      toast.error('Failed to delete', { id: toastId });
     }
   };
 

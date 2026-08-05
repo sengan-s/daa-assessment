@@ -217,8 +217,12 @@ async function runAll() {
       console.log(`Running ${probId} in ${lang}...`);
       try {
         const result = await evaluateCode(prob, sol, lang, prob.testCases);
-        const allPassed = result.results.every(r => r.status === 'PASS');
-        console.log(`${probId} in ${lang}: ${allPassed ? 'ALL PASSED' : 'FAILED'}`);
+        const allPassed = result.results.every(tc => tc.status === 'AC');
+        if (allPassed) {
+          console.log(`${probId} in ${lang}: SUCCESS`);
+        } else {
+          console.log(`${probId} in ${lang}: FAILED`);
+        }
         if (!allPassed) {
           console.log(JSON.stringify(result.results, null, 2));
         }

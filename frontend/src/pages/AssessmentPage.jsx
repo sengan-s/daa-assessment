@@ -329,23 +329,31 @@ export default function AssessmentPage() {
               <h3 className="text-lg font-semibold mb-4 border-b border-brand-pink/30 pb-2 text-brand-pink">Test Results</h3>
               <div className="space-y-3">
                 {runResults[activeTab].map((res, i) => (
-                  <div key={i} className={`p-3 rounded-lg border ${res.status === 'PASS' ? 'bg-brand-pass/10 border-brand-pass/40' : 'bg-brand-coral/10 border-brand-coral/40'} backdrop-blur-sm`}>
-                    <div className="flex items-center gap-2 mb-1">
-                      {res.status === 'PASS' ? <CheckCircle className="w-5 h-5 text-brand-pass" /> : <XCircle className="w-5 h-5 text-brand-coral" />}
-                      <span className="font-semibold">{res.isHidden ? `Hidden Test Case ${res.index}` : `Test Case ${res.index}`}</span>
-                      <span className={`ml-auto text-sm ${res.status === 'PASS' ? 'text-green-400' : 'text-red-400'}`}>
-                        {res.status}
+                  <div key={i} className={`p-3 rounded-lg border ${res.status === 'AC' ? 'bg-brand-pass/10 border-brand-pass/40' : 'bg-brand-coral/10 border-brand-coral/40'} backdrop-blur-sm`}>
+                    <div className="flex items-center gap-3">
+                      {res.status === 'AC' ? <CheckCircle className="w-5 h-5 text-brand-pass" /> : <XCircle className="w-5 h-5 text-brand-coral" />}
+                      <span className="font-semibold text-white">Test Case {res.index} {res.isHidden ? '(Hidden)' : ''}</span>
+                      <span className={`ml-auto text-sm font-bold ${res.status === 'AC' ? 'text-green-400' : 'text-red-400'}`}>
+                        {{ 'AC': 'Accepted', 'WA': 'Wrong Answer', 'TLE': 'Time Limit Exceeded', 'RE': 'Runtime Error', 'CE': 'Compilation Error' }[res.status] || res.status}
                       </span>
                     </div>
-                    {res.status === 'FAIL' && !res.isHidden && (
-                      <div className="text-sm mt-2 space-y-1 text-slate-300">
-                        <div><span className="font-semibold text-slate-400">Reason:</span> {res.reason}</div>
-                        {res.expected && <div><span className="font-semibold text-slate-400">Expected:</span> <code className="bg-slate-800 px-1 rounded">{res.expected}</code></div>}
-                        {res.actual && <div><span className="font-semibold text-slate-400">Actual:</span> <code className="bg-slate-800 px-1 rounded">{res.actual}</code></div>}
-                        {res.details && <pre className="mt-2 text-xs text-red-300 bg-red-950/50 p-2 rounded overflow-x-auto">{res.details}</pre>}
+                    {res.status !== 'AC' && !res.isHidden && (
+                      <div className="mt-3 text-sm bg-black/40 p-3 rounded font-mono overflow-x-auto text-brand-coral">
+                        {res.status === 'CE' ? (
+                           <div className="text-red-400"><strong>Compilation Error:</strong><br/>{res.details}</div>
+                        ) : res.status === 'RE' ? (
+                           <div className="text-red-400"><strong>Runtime Error:</strong><br/>{res.details}</div>
+                        ) : res.status === 'TLE' ? (
+                           <div className="text-orange-400"><strong>Time Limit Exceeded</strong></div>
+                        ) : (
+                          <>
+                            <div className="mb-1"><span className="text-slate-400">Expected:</span> {res.expected}</div>
+                            <div><span className="text-slate-400">Actual:</span> {res.actual}</div>
+                          </>
+                        )}
                       </div>
                     )}
-                    {res.status === 'FAIL' && res.isHidden && (
+                    {res.status !== 'AC' && res.isHidden && (
                       <div className="text-sm mt-2 text-slate-400">
                         Reason: {res.reason}
                       </div>

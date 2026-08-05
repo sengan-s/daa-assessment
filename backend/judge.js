@@ -3,7 +3,10 @@ const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
 
-function compareOutput(actual, expected) {
+function compareOutput(actual, expected, problem) {
+  if (problem && typeof problem.validator === 'function') {
+    return problem.validator(actual, expected);
+  }
   if (typeof actual !== 'string' || typeof expected !== 'string') return actual === expected;
   const normalize = (str) => {
     return str
@@ -40,12 +43,12 @@ function spawnAndWait(command, args, cwd, stdinData = null) {
       runtimeError += data.toString();
     });
 
-    child.on('error', (err) => resolve({ status: 'FAIL', reason: 'Runtime Error', details: 'Failed to start process: ' + err.message }));
+    child.on('error', (err) => resolve({ status: 'RE', details: 'Failed to start process: ' + err.message }));
 
     child.on('close', (code) => {
       clearTimeout(timeoutTimer);
-      if (isTimeout) return resolve({ status: 'FAIL', reason: 'Time Limit Exceeded' });
-      if (code !== 0) return resolve({ status: 'FAIL', reason: 'Runtime Error', details: runtimeError });
+      if (isTimeout) return resolve({ status: 'TLE' });
+      if (code !== 0) return resolve({ status: 'RE', details: runtimeError });
       resolve({ status: 'PASS', actual: output.trim() });
     });
   });
@@ -89,21 +92,17 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
         
         const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
         if (res.status === 'PASS') {
-          if (compareOutput(res.actual, tc.expected)) {
+          if (compareOutput(res.actual, tc.expected, problem)) {
             passedCount++;
-            formattedResult.status = 'PASS';
+            formattedResult.status = 'AC';
           } else {
-            formattedResult.status = 'FAIL';
-            formattedResult.reason = 'Wrong Answer';
+            formattedResult.status = 'WA';
           }
         }
         if (!tc.isHidden) {
           formattedResult.expected = tc.expected;
           formattedResult.actual = res.actual;
-          formattedResult.reason = formattedResult.reason || res.reason;
           formattedResult.details = res.details;
-        } else if (formattedResult.status === 'FAIL') {
-          formattedResult.reason = 'Hidden Test Case Failed';
         }
         results.push(formattedResult);
       }
@@ -117,10 +116,9 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
       if (!compRes.success) {
         for (let i = 0; i < testCasesToRun.length; i++) {
           const formattedResult = {
-            index: i + 1, isHidden: testCasesToRun[i].isHidden, status: 'FAIL', reason: 'Compilation Error'
+            index: i + 1, isHidden: testCasesToRun[i].isHidden, status: 'CE'
           };
           if (!testCasesToRun[i].isHidden) formattedResult.details = compRes.error;
-          else formattedResult.reason = 'Hidden Test Case Failed';
           results.push(formattedResult);
         }
       } else {
@@ -133,21 +131,17 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
           
           const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
           if (res.status === 'PASS') {
-            if (compareOutput(res.actual, tc.expected)) {
+            if (compareOutput(res.actual, tc.expected, problem)) {
               passedCount++;
-              formattedResult.status = 'PASS';
+              formattedResult.status = 'AC';
             } else {
-              formattedResult.status = 'FAIL';
-              formattedResult.reason = 'Wrong Answer';
+              formattedResult.status = 'WA';
             }
           }
           if (!tc.isHidden) {
             formattedResult.expected = tc.expected;
             formattedResult.actual = res.actual;
-            formattedResult.reason = formattedResult.reason || res.reason;
             formattedResult.details = res.details;
-          } else if (formattedResult.status === 'FAIL') {
-            formattedResult.reason = 'Hidden Test Case Failed';
           }
           results.push(formattedResult);
         }
@@ -163,10 +157,9 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
       if (!compRes.success) {
         for (let i = 0; i < testCasesToRun.length; i++) {
           const formattedResult = {
-            index: i + 1, isHidden: testCasesToRun[i].isHidden, status: 'FAIL', reason: 'Compilation Error'
+            index: i + 1, isHidden: testCasesToRun[i].isHidden, status: 'CE'
           };
           if (!testCasesToRun[i].isHidden) formattedResult.details = compRes.error;
-          else formattedResult.reason = 'Hidden Test Case Failed';
           results.push(formattedResult);
         }
       } else {
@@ -178,21 +171,17 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
           
           const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
           if (res.status === 'PASS') {
-            if (compareOutput(res.actual, tc.expected)) {
+            if (compareOutput(res.actual, tc.expected, problem)) {
               passedCount++;
-              formattedResult.status = 'PASS';
+              formattedResult.status = 'AC';
             } else {
-              formattedResult.status = 'FAIL';
-              formattedResult.reason = 'Wrong Answer';
+              formattedResult.status = 'WA';
             }
           }
           if (!tc.isHidden) {
             formattedResult.expected = tc.expected;
             formattedResult.actual = res.actual;
-            formattedResult.reason = formattedResult.reason || res.reason;
             formattedResult.details = res.details;
-          } else if (formattedResult.status === 'FAIL') {
-            formattedResult.reason = 'Hidden Test Case Failed';
           }
           results.push(formattedResult);
         }
