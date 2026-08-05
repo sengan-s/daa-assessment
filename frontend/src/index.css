@@ -14,31 +14,7 @@
   }
 }
 
-@layer utilities {
-  .bg-animate-gradient {
-    background: linear-gradient(-45deg, var(--color-brand-bg1), var(--color-brand-purple), var(--color-brand-pink), var(--color-brand-bg2));
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
-  }
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  .animate-float-delayed {
-    animation: float 6s ease-in-out 3s infinite;
-  }
-
-  @media (prefers-reduced-motion) {
-    .bg-animate-gradient {
-      animation: none;
-      background: linear-gradient(135deg, var(--color-brand-bg1), var(--color-brand-bg2));
-    }
-    .animate-float, .animate-float-delayed {
-      animation: none;
-    }
-  }
-}
 
 @keyframes gradientShift {
   0% {
@@ -61,5 +37,65 @@
   }
   100% {
     transform: translateY(0px);
+  }
+}
+
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+@keyframes buttonShimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+@layer utilities {
+  .bg-animate-gradient {
+    background: linear-gradient(-45deg, var(--color-brand-bg1), var(--color-brand-purple), var(--color-brand-pink), var(--color-brand-bg2));
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-float-delayed {
+    animation: float 6s ease-in-out 3s infinite;
+  }
+
+  .animate-ken-burns {
+    animation: kenBurns 20s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background-size: 200% auto;
+    animation: buttonShimmer 4s linear infinite;
+  }
+
+  .vignette-overlay {
+    background: radial-gradient(circle, transparent 40%, rgba(10, 14, 42, 0.9) 100%);
+  }
+
+  @media (prefers-reduced-motion) {
+    .bg-animate-gradient {
+      animation: none;
+      background: linear-gradient(135deg, var(--color-brand-bg1), var(--color-brand-bg2));
+    }
+    .animate-float, .animate-float-delayed, .animate-ken-burns, .animate-shimmer {
+      animation: none !important;
+    }
   }
 }
