@@ -77,14 +77,24 @@ export default function AssessmentPage() {
 
   // Anti-cheating listeners
   useEffect(() => {
-    const handleCopyPaste = (e) => {
-      e.preventDefault();
+    const handleAntiCheatViolation = (message) => {
       incrementWarning();
       const currentWarnings = useStore.getState().warnings;
-      toast.error(`Warning [${currentWarnings}/3]: Copy-paste is not allowed during this assessment.`, { duration: 4000 });
+      toast.error(`Warning [${currentWarnings}/3]: ${message}`, { duration: 4000 });
       if (currentWarnings >= 3) {
         toast.error('Maximum warnings reached. Auto-submitting...');
         handleFinalSubmit(true);
+      }
+    };
+
+    const handleCopyPaste = (e) => {
+      e.preventDefault();
+      handleAntiCheatViolation('Copy-paste is not allowed during this assessment.');
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleAntiCheatViolation('Tab switching is not allowed during this assessment.');
       }
     };
 
@@ -98,12 +108,14 @@ export default function AssessmentPage() {
     document.addEventListener('paste', handleCopyPaste);
     document.addEventListener('cut', handleCopyPaste);
     document.addEventListener('keydown', blockKeys);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       document.removeEventListener('copy', handleCopyPaste);
       document.removeEventListener('paste', handleCopyPaste);
       document.removeEventListener('cut', handleCopyPaste);
       document.removeEventListener('keydown', blockKeys);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
