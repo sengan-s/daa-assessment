@@ -33,17 +33,17 @@ const useStore = create(
       // Problem Code State per language
       code: {
         java: {
-          mergeSort: `class Solution {\n    public static void merge(int[] nums1, int m, int[] nums2, int n) {\n        // candidate writes code here — modify nums1 in place, don't return anything\n    }\n}`,
+          mergeSort: `import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        // write your code here\n    }\n}`,
           binarySearch: `class Solution {\n    public static int binarySearch(int[] arr, int target) {\n        // candidate writes code here\n        return -1;\n    }\n}`,
           matrixMult: `class Solution {\n    public static int[][] multiply(int[][] A, int[][] B) {\n        // candidate writes code here\n        return new int[0][0];\n    }\n}`
         },
         python: {
-          mergeSort: `class Solution:\n    def merge(self, nums1, m, nums2, n):\n        # candidate writes code here — modify nums1 in place, don't return anything\n        pass`,
+          mergeSort: `# write your code here`,
           binarySearch: `class Solution:\n    def binarySearch(self, arr, target):\n        # candidate writes code here\n        return -1`,
           matrixMult: `class Solution:\n    def multiply(self, A, B):\n        # candidate writes code here\n        return []`
         },
         c: {
-          mergeSort: `void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {\n    // candidate writes code here\n}`,
+          mergeSort: `#include <stdio.h>\n\nint main() {\n    // write your code here\n    return 0;\n}`,
           binarySearch: `int binarySearch(int* arr, int arrSize, int target) {\n    // candidate writes code here\n    return -1;\n}`,
           matrixMult: `void multiply(int* A, int A_rows, int A_cols, int* B, int B_rows, int B_cols, int* res) {\n    // candidate writes code here\n}`
         }

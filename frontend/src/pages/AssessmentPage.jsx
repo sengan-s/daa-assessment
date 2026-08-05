@@ -31,8 +31,8 @@ export default function AssessmentPage() {
   const [activeTab, setActiveTab] = useState('mergeSort');
   const [problemDetails, setProblemDetails] = useState({
     mergeSort: { 
-      desc: "You are given two integer arrays nums1 and nums2, sorted in non-decreasing order, and two integers m and n, representing the number of elements in nums1 and nums2 respectively. Merge nums1 and nums2 into a single array sorted in non-decreasing order. The final sorted array should not be returned by the function — instead it must be stored inside nums1. To accommodate this, nums1 has a length of m + n, where the first m elements are the elements to be merged and the last n elements are 0 placeholders to be ignored/overwritten. nums2 has a length of n.",
-      samples: "Input: nums1=[1,2,3,0,0,0], m=3, nums2=[2,5,6], n=3 → Output: [1,2,2,3,5,6]"
+      desc: "You are given two sorted arrays. Merge them into one sorted array.",
+      samples: "Input:\n4\n1 3 5 7\n3\n2 4 6\n\nOutput:\n1 2 3 4 5 6 7"
     },
     binarySearch: {
       desc: "Given a sorted array and a target, return the index of target, or -1 if not found.",
@@ -314,7 +314,7 @@ export default function AssessmentPage() {
           <h2 className="text-2xl font-bold mb-4 text-white">{PROBLEMS.find(p => p.id === activeTab)?.title}</h2>
           
           <div className="prose prose-invert max-w-none">
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
               {problemDetails[activeTab].desc}
             </p>
             <h3 className="text-lg font-semibold mt-6 mb-2 text-white">Sample Input/Output</h3>
