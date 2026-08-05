@@ -203,11 +203,11 @@ export default function AssessmentPage() {
   if (!candidate) return null;
 
   return (
-    <div className="flex flex-col h-screen bg-slate-900 text-slate-200 font-sans">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-brand-bg1 to-brand-bg2 text-slate-200 font-sans">
       {/* Header */}
-      <header className="flex justify-between items-center p-4 bg-slate-800 border-b border-slate-700 shadow-md">
+      <header className="flex justify-between items-center p-4 bg-brand-bg1/70 backdrop-blur-xl border-b border-brand-pink/30 shadow-[0_4px_20px_rgba(247,37,133,0.15)] z-10">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+          <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-brand-purple">
             DAA Assessment
           </h1>
           <span className="text-sm px-3 py-1 bg-slate-700 rounded-full">{candidate.rollNo} - {candidate.name}</span>
@@ -224,9 +224,9 @@ export default function AssessmentPage() {
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10">
               <svg className="w-full h-full transform -rotate-90">
-                <circle cx="20" cy="20" r="18" className="stroke-slate-700" strokeWidth="4" fill="none" />
+                <circle cx="20" cy="20" r="18" className="stroke-brand-pink/20" strokeWidth="4" fill="none" />
                 <circle cx="20" cy="20" r="18" 
-                  className={`stroke-current ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-green-500'}`} 
+                  className={`stroke-current ${timeLeft < 300 ? 'text-brand-coral animate-pulse' : 'text-brand-pink'}`} 
                   strokeWidth="4" fill="none" 
                   strokeDasharray="113" 
                   strokeDashoffset={113 - (113 * timeLeft) / 3600} 
@@ -234,7 +234,7 @@ export default function AssessmentPage() {
                 />
               </svg>
             </div>
-            <span className={`text-xl font-mono font-bold ${timeLeft < 300 ? 'text-red-500' : 'text-green-400'}`}>
+            <span className={`text-xl font-mono font-bold ${timeLeft < 300 ? 'text-brand-coral' : 'text-brand-pink'}`}>
               {formatTime(timeLeft)}
             </span>
           </div>
@@ -242,7 +242,7 @@ export default function AssessmentPage() {
           <button 
             onClick={() => handleFinalSubmit(false)}
             disabled={isSubmittingTotal}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-gradient-to-r from-brand-coral to-red-600 hover:shadow-[0_0_15px_rgba(255,107,107,0.5)] text-white px-4 py-2 rounded-lg font-semibold transition-all disabled:opacity-50"
           >
             {isSubmittingTotal ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
             Final Submit
@@ -254,8 +254,8 @@ export default function AssessmentPage() {
       <div className="flex flex-1 overflow-hidden">
         
         {/* Left Sidebar - Problem List */}
-        <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col">
-          <div className="p-4 font-semibold text-slate-400 border-b border-slate-700 uppercase text-xs tracking-wider">
+        <div className="w-64 bg-brand-bg1/50 backdrop-blur-md border-r border-brand-pink/30 flex flex-col z-10">
+          <div className="p-4 font-semibold text-brand-purple border-b border-brand-pink/30 uppercase text-xs tracking-wider">
             Problems
           </div>
           <div className="flex-1 overflow-y-auto">
@@ -263,12 +263,12 @@ export default function AssessmentPage() {
               <button
                 key={prob.id}
                 onClick={() => setActiveTab(prob.id)}
-                className={`w-full text-left px-4 py-4 border-b border-slate-700/50 transition-colors flex justify-between items-center ${activeTab === prob.id ? 'bg-slate-700 border-l-4 border-l-blue-500' : 'hover:bg-slate-700/50 border-l-4 border-l-transparent'}`}
+                className={`w-full text-left px-4 py-4 border-b border-brand-pink/10 transition-colors flex justify-between items-center ${activeTab === prob.id ? 'bg-brand-bg2/80 border-l-4 border-l-brand-pink shadow-[inset_4px_0_0_rgba(247,37,133,1)]' : 'hover:bg-brand-bg2/40 border-l-4 border-l-transparent'}`}
               >
-                <div className={`font-medium ${activeTab === prob.id ? 'text-blue-400' : 'text-slate-300'}`}>
+                <div className={`font-medium ${activeTab === prob.id ? 'text-brand-pink' : 'text-slate-300'}`}>
                   {prob.title}
                 </div>
-                {problemStatus[prob.id] === 'solved' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                {problemStatus[prob.id] === 'solved' && <CheckCircle className="w-4 h-4 text-brand-pass" />}
                 {problemStatus[prob.id] === 'attempted' && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
               </button>
             ))}
@@ -276,7 +276,7 @@ export default function AssessmentPage() {
         </div>
 
         {/* Center - Problem Statement */}
-        <div className="w-1/3 p-6 bg-slate-900 border-r border-slate-700 flex flex-col overflow-y-auto">
+        <div className="w-1/3 p-6 bg-brand-bg2/20 backdrop-blur-sm border-r border-brand-pink/30 flex flex-col overflow-y-auto">
           <h2 className="text-2xl font-bold mb-4 text-white">{PROBLEMS.find(p => p.id === activeTab)?.title}</h2>
           
           <div className="prose prose-invert max-w-none">
@@ -284,7 +284,7 @@ export default function AssessmentPage() {
               {problemDetails[activeTab].desc}
             </p>
             <h3 className="text-lg font-semibold mt-6 mb-2 text-white">Sample Input/Output</h3>
-            <pre className="bg-slate-800 p-4 rounded-lg text-sm text-blue-300 whitespace-pre-wrap">
+            <pre className="bg-brand-bg1/80 border border-brand-pink/20 p-4 rounded-lg text-sm text-brand-purple whitespace-pre-wrap">
               {problemDetails[activeTab].samples}
             </pre>
           </div>
@@ -292,12 +292,12 @@ export default function AssessmentPage() {
           {/* Run Results Panel */}
           {runResults[activeTab] && (
             <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-4 border-b border-slate-700 pb-2">Test Results</h3>
+              <h3 className="text-lg font-semibold mb-4 border-b border-brand-pink/30 pb-2 text-brand-pink">Test Results</h3>
               <div className="space-y-3">
                 {runResults[activeTab].map((res, i) => (
-                  <div key={i} className={`p-3 rounded-lg border ${res.status === 'PASS' ? 'bg-green-900/20 border-green-800/50' : 'bg-red-900/20 border-red-800/50'}`}>
+                  <div key={i} className={`p-3 rounded-lg border ${res.status === 'PASS' ? 'bg-brand-pass/10 border-brand-pass/40' : 'bg-brand-coral/10 border-brand-coral/40'} backdrop-blur-sm`}>
                     <div className="flex items-center gap-2 mb-1">
-                      {res.status === 'PASS' ? <CheckCircle className="w-5 h-5 text-green-500" /> : <XCircle className="w-5 h-5 text-red-500" />}
+                      {res.status === 'PASS' ? <CheckCircle className="w-5 h-5 text-brand-pass" /> : <XCircle className="w-5 h-5 text-brand-coral" />}
                       <span className="font-semibold">{res.isHidden ? `Hidden Test Case ${res.index}` : `Test Case ${res.index}`}</span>
                       <span className={`ml-auto text-sm ${res.status === 'PASS' ? 'text-green-400' : 'text-red-400'}`}>
                         {res.status}
@@ -325,12 +325,12 @@ export default function AssessmentPage() {
 
         {/* Right - Code Editor */}
         <div className="flex-1 flex flex-col bg-[#1e1e1e]">
-          <div className="flex justify-between items-center p-2 bg-slate-800 border-b border-slate-700">
+          <div className="flex justify-between items-center p-2 bg-brand-bg1/90 border-b border-brand-pink/30">
             <div className="flex gap-2 items-center">
               <select 
                 value={language[activeTab]} 
                 onChange={(e) => updateLanguage(activeTab, e.target.value)}
-                className="bg-slate-900 border border-slate-600 text-slate-300 text-sm rounded px-3 py-1.5 outline-none mr-2 focus:border-blue-500"
+                className="bg-brand-bg2 border border-brand-pink/40 text-slate-300 text-sm rounded px-3 py-1.5 outline-none mr-2 focus:border-brand-pink focus:ring-1 focus:ring-brand-pink"
               >
                 <option value="java">Java</option>
                 <option value="python">Python 3</option>
@@ -339,15 +339,15 @@ export default function AssessmentPage() {
               <button 
                 onClick={() => handleRun(false)}
                 disabled={isEvaluating}
-                className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 bg-brand-bg2 hover:bg-brand-bg2/80 border border-brand-pink/40 px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-50"
               >
-                {isEvaluating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 text-green-400" />}
+                {isEvaluating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 text-brand-pass" />}
                 Run
               </button>
               <button 
                 onClick={() => handleRun(true)}
                 disabled={isEvaluating}
-                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-50 text-white"
+                className="flex items-center gap-1 bg-gradient-to-r from-brand-pink to-brand-purple hover:shadow-[0_0_15px_rgba(247,37,133,0.5)] px-3 py-1.5 rounded text-sm font-medium transition-all disabled:opacity-50 text-white"
               >
                 {isEvaluating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Submit
@@ -357,14 +357,14 @@ export default function AssessmentPage() {
               <button 
                 onClick={prevProblem}
                 disabled={activeTab === PROBLEMS[0].id}
-                className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 bg-brand-bg2 hover:bg-brand-bg2/80 border border-brand-pink/20 px-3 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
               >
                 <ChevronLeft className="w-4 h-4" /> Prev
               </button>
               <button 
                 onClick={nextProblem}
                 disabled={activeTab === PROBLEMS[PROBLEMS.length - 1].id}
-                className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 bg-brand-bg2 hover:bg-brand-bg2/80 border border-brand-pink/20 px-3 py-1.5 rounded text-sm transition-colors disabled:opacity-50"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>

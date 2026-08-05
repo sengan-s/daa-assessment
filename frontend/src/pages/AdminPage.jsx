@@ -122,7 +122,7 @@ export default function AdminPage() {
   if (!isAdminAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-200 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-brand-bg1 to-brand-bg2 text-slate-200 p-8">
       <div className="max-w-7xl mx-auto">
         
         <div className="flex justify-between items-center mb-8">
@@ -141,23 +141,23 @@ export default function AdminPage() {
           </div>
           
           <div className="flex gap-4">
-            <button onClick={fetchResults} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors">
+            <button onClick={fetchResults} className="px-4 py-2 bg-brand-bg2 hover:bg-brand-bg2/80 border border-brand-pink/40 rounded text-sm font-medium transition-colors">
               Refresh Data
             </button>
-            <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-sm font-medium transition-colors text-white">
+            <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-pink to-brand-purple hover:shadow-[0_0_15px_rgba(247,37,133,0.5)] rounded text-sm font-medium transition-all text-white">
               <Download className="w-4 h-4" /> Export CSV
             </button>
           </div>
         </div>
 
-        <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl">
-          <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+        <div className="bg-brand-bg1/70 backdrop-blur-xl border border-brand-pink/30 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(247,37,133,0.1)]">
+          <div className="p-4 border-b border-brand-pink/30 flex justify-between items-center bg-brand-bg1/50">
             <div className="relative w-64">
               <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
               <input 
                 type="text" 
                 placeholder="Search Roll No or Name..." 
-                className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                className="w-full pl-9 pr-4 py-2 bg-brand-bg2 border border-brand-pink/40 rounded-lg text-sm focus:outline-none focus:border-brand-pink focus:ring-1 focus:ring-brand-pink"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -167,7 +167,7 @@ export default function AdminPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-900/50 border-b border-slate-700">
+                <tr className="bg-brand-bg2/40 border-b border-brand-pink/20">
                   <th className="p-4 font-semibold text-slate-300 cursor-pointer" onClick={() => handleSort('rollNo')}>
                     Roll No {sortConfig.key === 'rollNo' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
@@ -190,11 +190,11 @@ export default function AdminPage() {
               <tbody>
                 {filteredResults.map((r) => (
                   <React.Fragment key={r.id}>
-                    <tr className={`border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors ${expandedRow === r.id ? 'bg-slate-700/30' : ''}`}>
+                    <tr className={`border-b border-brand-pink/10 hover:bg-brand-bg2/40 transition-colors ${expandedRow === r.id ? 'bg-brand-bg2/40' : ''}`}>
                       <td className="p-4 font-mono text-sm">{r.rollNo}</td>
                       <td className="p-4 font-medium">{r.name}</td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${r.totalScore >= 40 ? 'bg-green-900/50 text-green-400' : r.totalScore >= 20 ? 'bg-yellow-900/50 text-yellow-400' : 'bg-red-900/50 text-red-400'}`}>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${r.totalScore >= 40 ? 'bg-brand-pass/20 text-brand-pass' : r.totalScore >= 20 ? 'bg-yellow-900/50 text-yellow-400' : 'bg-brand-coral/20 text-brand-coral'}`}>
                           {r.totalScore} / 50
                         </span>
                       </td>
@@ -232,14 +232,14 @@ export default function AdminPage() {
                       </td>
                     </tr>
                     {expandedRow === r.id && (
-                      <tr className="bg-slate-900 border-b border-slate-700">
+                      <tr className="bg-brand-bg1/90 border-b border-brand-pink/20">
                         <td colSpan="7" className="p-6">
-                          <h4 className="flex items-center gap-2 text-white font-semibold mb-4 border-b border-slate-700 pb-2">
+                          <h4 className="flex items-center gap-2 text-white font-semibold mb-4 border-b border-brand-pink/20 pb-2">
                             <Code className="w-4 h-4 text-blue-400" /> Submitted Code
                           </h4>
                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             
-                            <div className="bg-slate-800 p-4 rounded border border-slate-700">
+                            <div className="bg-brand-bg2/50 p-4 rounded border border-brand-pink/20">
                               <div className="flex justify-between items-center mb-2">
                                 <span className="font-medium text-sm text-blue-300">
                                   Merge Sorted Array <span className="text-xs uppercase bg-slate-700 px-1 rounded ml-1 text-slate-400">{r.languageMergeSort}</span>
@@ -251,7 +251,7 @@ export default function AdminPage() {
                               </pre>
                             </div>
 
-                            <div className="bg-slate-800 p-4 rounded border border-slate-700">
+                            <div className="bg-brand-bg2/50 p-4 rounded border border-brand-pink/20">
                               <div className="flex justify-between items-center mb-2">
                                 <span className="font-medium text-sm text-blue-300">
                                   Binary Search <span className="text-xs uppercase bg-slate-700 px-1 rounded ml-1 text-slate-400">{r.languageBinarySearch}</span>
@@ -263,7 +263,7 @@ export default function AdminPage() {
                               </pre>
                             </div>
 
-                            <div className="bg-slate-800 p-4 rounded border border-slate-700">
+                            <div className="bg-brand-bg2/50 p-4 rounded border border-brand-pink/20">
                               <div className="flex justify-between items-center mb-2">
                                 <span className="font-medium text-sm text-blue-300">
                                   Matrix Multiplication <span className="text-xs uppercase bg-slate-700 px-1 rounded ml-1 text-slate-400">{r.languageMatrixMult}</span>

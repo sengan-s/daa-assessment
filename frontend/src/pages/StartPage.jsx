@@ -67,7 +67,7 @@ export default function StartPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-brand-bg1 to-brand-bg2 flex items-center justify-center p-4 overflow-hidden relative">
       {/* Floating particles background (simplified with CSS/Framer Motion) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
@@ -97,14 +97,14 @@ export default function StartPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl w-full max-w-md relative z-10"
+        className="bg-brand-bg1/70 backdrop-blur-xl border border-brand-pink/30 hover:border-brand-pink/60 hover:shadow-[0_0_20px_rgba(247,37,133,0.3)] transition-all p-8 rounded-2xl shadow-2xl w-full max-w-md relative z-10"
       >
         <div className="text-center mb-6">
           <motion.h1 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-2"
+            className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-brand-purple mb-2"
           >
             DAA Assessment
           </motion.h1>
@@ -114,13 +114,13 @@ export default function StartPage() {
         {/* Mode Toggle Tabs */}
         <div className="flex bg-white/5 rounded-lg p-1 mb-6 border border-white/10">
           <button 
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${loginMode === 'candidate' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${loginMode === 'candidate' ? 'bg-gradient-to-r from-brand-pink to-brand-purple text-white shadow-[0_0_15px_rgba(247,37,133,0.4)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
             onClick={() => { setLoginMode('candidate'); setError(''); }}
           >
             Candidate
           </button>
           <button 
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${loginMode === 'admin' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${loginMode === 'admin' ? 'bg-gradient-to-r from-brand-pink to-brand-purple text-white shadow-[0_0_15px_rgba(247,37,133,0.4)]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
             onClick={() => { setLoginMode('admin'); setError(''); }}
           >
             Admin
@@ -134,7 +134,7 @@ export default function StartPage() {
             <input 
               type="text" 
               placeholder="2024-CSBS-108"
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-pink transition-all"
               value={rollNo}
               onChange={(e) => {
                 setRollNo(e.target.value);
@@ -148,7 +148,7 @@ export default function StartPage() {
             <input 
               type="text" 
               placeholder="e.g. Asmita"
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-pink transition-all"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -170,7 +170,7 @@ export default function StartPage() {
           <button 
             type="submit"
             disabled={!rollNo || !name}
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg transform transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 px-4 bg-gradient-to-r from-brand-pink to-brand-purple hover:shadow-[0_0_20px_rgba(247,37,133,0.6)] text-white font-bold rounded-lg transform transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Start Assessment
           </button>
@@ -182,7 +182,7 @@ export default function StartPage() {
             <input 
               type="password" 
               placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-pink transition-all"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -204,7 +204,7 @@ export default function StartPage() {
           <button 
             type="submit"
             disabled={!password}
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg transform transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 px-4 bg-gradient-to-r from-brand-pink to-brand-purple hover:shadow-[0_0_20px_rgba(247,37,133,0.6)] text-white font-bold rounded-lg transform transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Login to Dashboard
           </button>

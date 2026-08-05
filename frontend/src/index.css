@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-bg1: #0A0E2A;
+  --color-brand-bg2: #1A1F4B;
+  --color-brand-pink: #F72585;
+  --color-brand-purple: #7B61FF;
+  --color-brand-coral: #FF6B6B;
+}
+
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-brand-bg1 text-slate-100;
   }
 }

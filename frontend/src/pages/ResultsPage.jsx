@@ -54,13 +54,13 @@ export default function ResultsPage() {
   if (!candidate || score === null) return null;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-bg1 to-brand-bg2 flex items-center justify-center p-4">
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-2xl w-full border border-slate-700 relative overflow-hidden"
+        className="bg-brand-bg1/70 backdrop-blur-xl rounded-2xl shadow-[0_0_30px_rgba(247,37,133,0.15)] p-8 max-w-2xl w-full border border-brand-pink/30 relative overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500" />
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-pink to-brand-purple" />
         
         <div className="text-center mb-8">
           <Trophy className="w-20 h-20 mx-auto text-yellow-400 mb-4" />
@@ -68,23 +68,23 @@ export default function ResultsPage() {
           <p className="text-slate-400">Thank you for your submission, {candidate.name} ({candidate.rollNo})</p>
         </div>
 
-        <div className="bg-slate-900 rounded-xl p-6 mb-8 text-center border border-slate-700">
+        <div className="bg-brand-bg2/50 backdrop-blur-md rounded-xl p-6 mb-8 text-center border border-brand-pink/20">
           <p className="text-slate-400 font-semibold mb-2 uppercase tracking-wide">Final Score</p>
-          <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+          <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-brand-purple">
             {displayScore} <span className="text-3xl text-slate-500">/ 50</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+          <div className="bg-brand-bg2/40 p-4 rounded-lg border border-brand-pink/20">
             <div className="text-slate-400 text-sm mb-1">Merge Sorted Array</div>
             <div className="text-xl font-bold text-white">{marks.mergeSort} <span className="text-sm text-slate-500">/ 15</span></div>
           </div>
-          <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+          <div className="bg-brand-bg2/40 p-4 rounded-lg border border-brand-pink/20">
             <div className="text-slate-400 text-sm mb-1">Binary Search</div>
             <div className="text-xl font-bold text-white">{marks.binarySearch} <span className="text-sm text-slate-500">/ 15</span></div>
           </div>
-          <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+          <div className="bg-brand-bg2/40 p-4 rounded-lg border border-brand-pink/20">
             <div className="text-slate-400 text-sm mb-1">Matrix Multiplication</div>
             <div className="text-xl font-bold text-white">{marks.matrixMult} <span className="text-sm text-slate-500">/ 20</span></div>
           </div>
@@ -111,7 +111,7 @@ export default function ResultsPage() {
 
         <button 
           onClick={handleExit}
-          className="w-full py-4 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+          className="w-full py-4 bg-gradient-to-r from-brand-pink to-brand-purple hover:shadow-[0_0_20px_rgba(247,37,133,0.5)] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2"
         >
           <LogOut className="w-5 h-5" />
           Exit Assessment
