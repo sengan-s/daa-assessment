@@ -128,7 +128,7 @@ export default function AdminPage() {
   if (!isAdminAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-bg1 to-brand-bg2 text-slate-200 p-8">
+    <div className="min-h-screen bg-animate-gradient text-slate-200 p-8">
       <div className="max-w-7xl mx-auto">
         
         <div className="flex justify-between items-center mb-8">

@@ -54,7 +54,7 @@ export default function ResultsPage() {
   if (!candidate || score === null) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-bg1 to-brand-bg2 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-animate-gradient flex items-center justify-center p-4">
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

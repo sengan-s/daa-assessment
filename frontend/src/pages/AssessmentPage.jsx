@@ -237,7 +237,7 @@ export default function AssessmentPage() {
   if (!candidate) return null;
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-brand-bg1 to-brand-bg2 text-slate-200 font-sans">
+    <div className="flex flex-col h-screen bg-animate-gradient text-slate-200 font-sans">
       {/* Header */}
       <header className="flex justify-between items-center p-4 bg-brand-bg1/70 backdrop-blur-xl border-b border-brand-pink/30 shadow-[0_4px_20px_rgba(247,37,133,0.15)] z-10">
         <div className="flex items-center gap-4">
