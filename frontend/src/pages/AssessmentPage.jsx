@@ -5,6 +5,7 @@ import useStore from '../store/useStore';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { Play, Send, CheckCircle, XCircle, AlertTriangle, LogOut, Loader2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { supabase } from '../supabaseClient';
 
 const PROBLEMS = [
   { id: 'mergeSort', title: 'Merge Sorted Array' },
@@ -179,6 +180,27 @@ export default function AssessmentPage() {
       if (data.success) {
         setIsSubmitted(true);
         setResults(data.totalScore, data.scores);
+        
+        // Save to Supabase
+        try {
+          const { error: sbError } = await supabase.from('submissions').insert({
+            id: candidate.rollNo,
+            roll_no: candidate.rollNo,
+            student_name: candidate.name,
+            total_marks: data.totalScore,
+            data: {
+              codePerProblem,
+              languagePerProblem: language,
+              timeTaken: 3600 - timeLeft,
+              violations: warnings,
+              scores: data.scores
+            }
+          });
+          if (sbError) console.error("Supabase insert error:", sbError);
+        } catch (e) {
+          console.error("Supabase insert exception:", e);
+        }
+
         toast.success(isAuto ? 'Auto-submitted successfully!' : 'Submitted successfully!', { id: toastId });
         navigate('/results');
       } else {
