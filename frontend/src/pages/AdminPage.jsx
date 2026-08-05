@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Search, Code, CheckCircle, Clock, AlertTriangle, Shield, ChevronDown, ChevronUp, Database, Trash2 } from 'lucide-react';
+import { Download, Search, Code, CheckCircle, Clock, AlertTriangle, Shield, ChevronDown, ChevronUp, Database, Trash2, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
@@ -7,12 +7,18 @@ import useStore from '../store/useStore';
 
 export default function AdminPage() {
   const isAdminAuthenticated = useStore(state => state.isAdminAuthenticated);
+  const setIsAdminAuthenticated = useStore(state => state.setIsAdminAuthenticated);
   const navigate = useNavigate();
   const [results, setResults] = useState([]);
   const [search, setSearch] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'submittedAt', direction: 'desc' });
   const [expandedRow, setExpandedRow] = useState(null);
   const [supabaseStatus, setSupabaseStatus] = useState('checking'); // checking, connected, error
+
+  const handleLogout = () => {
+    setIsAdminAuthenticated(false);
+    navigate('/');
+  };
 
   useEffect(() => {
     if (!isAdminAuthenticated) {
@@ -146,6 +152,9 @@ export default function AdminPage() {
             </button>
             <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-pink to-brand-purple hover:shadow-[0_0_15px_rgba(247,37,133,0.5)] rounded text-sm font-medium transition-all text-white">
               <Download className="w-4 h-4" /> Export CSV
+            </button>
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-slate-500 rounded text-sm font-medium transition-colors text-white">
+              <LogOut className="w-4 h-4" /> Exit
             </button>
           </div>
         </div>

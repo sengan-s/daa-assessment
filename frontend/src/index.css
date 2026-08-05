@@ -13,3 +13,53 @@
     @apply bg-brand-bg1 text-slate-100;
   }
 }
+
+@layer utilities {
+  .bg-animate-gradient {
+    background: linear-gradient(-45deg, var(--color-brand-bg1), var(--color-brand-purple), var(--color-brand-pink), var(--color-brand-bg2));
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-float-delayed {
+    animation: float 6s ease-in-out 3s infinite;
+  }
+
+  @media (prefers-reduced-motion) {
+    .bg-animate-gradient {
+      animation: none;
+      background: linear-gradient(135deg, var(--color-brand-bg1), var(--color-brand-bg2));
+    }
+    .animate-float, .animate-float-delayed {
+      animation: none;
+    }
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
