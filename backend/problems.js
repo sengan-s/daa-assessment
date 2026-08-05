@@ -1,108 +1,34 @@
 module.exports = {
   mergeSort: {
     id: 'mergeSort',
-    title: 'Merge Sorted Array',
+    title: 'Merge Two Sorted Arrays',
+    type: 'stdio',
     marks: 15,
-    starterCode: `class Solution {
-    public static void merge(int[] nums1, int m, int[] nums2, int n) {
-        // candidate writes code here — modify nums1 in place, don't return anything
+    starterCode: `import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+        // write your code here
     }
 }`,
-    starterCodePython: `class Solution:
-    def merge(self, nums1, m, nums2, n):
-        # candidate writes code here — modify nums1 in place, don't return anything
-        pass`,
-    starterCodeC: `void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
-    // candidate writes code here
+    starterCodePython: `# write your code here
+`,
+    starterCodeC: `#include <stdio.h>
+
+int main() {
+    // write your code here
+    return 0;
 }`,
     testCases: [
-      { input: { nums1: [1,2,3,0,0,0], m: 3, nums2: [2,5,6], n: 3 }, expected: "[1,2,2,3,5,6]", isHidden: false },
-      { input: { nums1: [1], m: 1, nums2: [], n: 0 }, expected: "[1]", isHidden: false },
-      { input: { nums1: [0], m: 0, nums2: [1], n: 1 }, expected: "[1]", isHidden: false },
-      { input: { nums1: [4,5,6,0,0,0], m: 3, nums2: [1,2,3], n: 3 }, expected: "[1,2,3,4,5,6]", isHidden: true },
-      { input: { nums1: [0,0,0,0], m: 0, nums2: [1,2,3,4], n: 4 }, expected: "[1,2,3,4]", isHidden: true }
+      { input: "4\n1 3 5 7\n3\n2 4 6\n", expected: "1 2 3 4 5 6 7", isHidden: false },
+      { input: "1\n1\n0\n\n", expected: "1", isHidden: false },
+      { input: "0\n\n1\n1\n", expected: "1", isHidden: false },
+      { input: "3\n4 5 6\n3\n1 2 3\n", expected: "1 2 3 4 5 6", isHidden: true },
+      { input: "0\n\n4\n1 2 3 4\n", expected: "1 2 3 4", isHidden: true }
     ],
-    generateMain: (solutionCode, allTestCases) => {
-      let mainBlocks = allTestCases.map((tc, i) => {
-        const { nums1, m, nums2, n } = tc.input;
-        return `        if (tcIndex == ${i}) {
-            int[] nums1 = ${JSON.stringify(nums1).replace(/\[/g, '{').replace(/\]/g, '}')};
-            int m = ${m};
-            int[] nums2 = ${JSON.stringify(nums2).replace(/\[/g, '{').replace(/\]/g, '}')};
-            int n = ${n};
-            Solution.merge(nums1, m, nums2, n);
-            System.out.print(java.util.Arrays.toString(nums1).replaceAll(" ", ""));
-            return;
-        }`;
-      }).join('\n');
-
-      return `import java.util.Arrays;
-${solutionCode}
-
-public class Main {
-    public static void main(String[] args) {
-        int tcIndex = Integer.parseInt(args[0]);
-${mainBlocks}
-    }
-}`;
-    },
-    generateMainPython: (solutionCode, allTestCases) => {
-      let mainBlocks = allTestCases.map((tc, i) => {
-        const { nums1, m, nums2, n } = tc.input;
-        return `    if tc_index == ${i}:
-        nums1 = json.loads('${JSON.stringify(nums1)}')
-        m = ${m}
-        nums2 = json.loads('${JSON.stringify(nums2)}')
-        n = ${n}
-        sol.merge(nums1, m, nums2, n)
-        print(json.dumps(nums1).replace(' ', ''))`;
-      }).join('\n');
-
-      return `import json
-import sys
-
-${solutionCode}
-
-if __name__ == '__main__':
-    tc_index = int(sys.argv[1])
-    sol = Solution()
-${mainBlocks}
-`;
-    },
-    generateMainC: (solutionCode, allTestCases) => {
-      let mainBlocks = allTestCases.map((tc, i) => {
-        const { nums1, m, nums2, n } = tc.input;
-        const cNums1 = nums1.length ? nums1.join(',') : '0';
-        const cNums2 = nums2.length ? nums2.join(',') : '0';
-        return `    if (tcIndex == ${i}) {
-        int nums1[${nums1.length || 1}] = {${cNums1}};
-        int m = ${m};
-        int nums2[${nums2.length || 1}] = {${cNums2}};
-        int n = ${n};
-        merge(nums1, ${nums1.length}, m, nums2, ${nums2.length}, n);
-        
-        printf("[");
-        for(int i=0; i<${nums1.length}; i++) {
-            printf("%d", nums1[i]);
-            if(i < ${nums1.length}-1) printf(",");
-        }
-        printf("]");
-        return 0;
-    }`;
-      }).join('\n');
-
-      return `#include <stdio.h>
-#include <stdlib.h>
-
-${solutionCode}
-
-int main(int argc, char *argv[]) {
-    if (argc < 2) return 1;
-    int tcIndex = atoi(argv[1]);
-${mainBlocks}
-    return 0;
-}`;
-    }
+    generateMain: () => "",
+    generateMainPython: () => "",
+    generateMainC: () => ""
   },
   binarySearch: {
     id: 'binarySearch',

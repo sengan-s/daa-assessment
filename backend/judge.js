@@ -3,12 +3,29 @@ const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
 
-function spawnAndWait(command, args, cwd) {
+function compareOutput(actual, expected) {
+  if (typeof actual !== 'string' || typeof expected !== 'string') return actual === expected;
+  const normalize = (str) => {
+    return str
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n');
+  };
+  return normalize(actual) === normalize(expected);
+}
+
+function spawnAndWait(command, args, cwd, stdinData = null) {
   return new Promise((resolve) => {
     const child = spawn(command, args, { cwd });
     let output = '';
     let runtimeError = '';
     let isTimeout = false;
+
+    if (stdinData) {
+      child.stdin.write(stdinData);
+      child.stdin.end();
+    }
 
     const timeoutTimer = setTimeout(() => {
       isTimeout = true;
@@ -55,21 +72,24 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'judge-'));
   const results = [];
   let passedCount = 0;
+  const isStdio = problem.type === 'stdio';
 
   try {
     if (language === 'python') {
       const mainFile = path.join(tempDir, 'main.py');
-      const pyCode = problem.generateMainPython(solutionCode, testCasesToRun);
+      const pyCode = isStdio ? solutionCode : problem.generateMainPython(solutionCode, testCasesToRun);
       fs.writeFileSync(mainFile, pyCode);
 
       for (let i = 0; i < testCasesToRun.length; i++) {
         const tc = testCasesToRun[i];
         const pythonExecutable = os.platform() === 'win32' ? 'python' : 'python3';
-        const res = await spawnAndWait(pythonExecutable, ['main.py', i.toString()], tempDir);
+        const args = isStdio ? ['main.py'] : ['main.py', i.toString()];
+        const stdin = isStdio ? tc.input : null;
+        const res = await spawnAndWait(pythonExecutable, args, tempDir, stdin);
         
         const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
         if (res.status === 'PASS') {
-          if (res.actual === tc.expected) {
+          if (compareOutput(res.actual, tc.expected)) {
             passedCount++;
             formattedResult.status = 'PASS';
           } else {
@@ -90,7 +110,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
     } 
     else if (language === 'c') {
       const mainFile = path.join(tempDir, 'main.c');
-      const cCode = problem.generateMainC(solutionCode, testCasesToRun);
+      const cCode = isStdio ? solutionCode : problem.generateMainC(solutionCode, testCasesToRun);
       fs.writeFileSync(mainFile, cCode);
 
       const compRes = await compileCode('gcc', ['main.c', '-o', 'main'], tempDir);
@@ -107,11 +127,13 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
         const exePath = path.join(tempDir, os.platform() === 'win32' ? 'main.exe' : 'main');
         for (let i = 0; i < testCasesToRun.length; i++) {
           const tc = testCasesToRun[i];
-          const res = await spawnAndWait(exePath, [i.toString()], tempDir);
+          const args = isStdio ? [] : [i.toString()];
+          const stdin = isStdio ? tc.input : null;
+          const res = await spawnAndWait(exePath, args, tempDir, stdin);
           
           const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
           if (res.status === 'PASS') {
-            if (res.actual === tc.expected) {
+            if (compareOutput(res.actual, tc.expected)) {
               passedCount++;
               formattedResult.status = 'PASS';
             } else {
@@ -134,7 +156,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
     else {
       // Java
       const mainFile = path.join(tempDir, 'Main.java');
-      const javaCode = problem.generateMain(solutionCode, testCasesToRun);
+      const javaCode = isStdio ? solutionCode : problem.generateMain(solutionCode, testCasesToRun);
       fs.writeFileSync(mainFile, javaCode);
 
       const compRes = await compileCode('javac', ['Main.java'], tempDir);
@@ -150,11 +172,13 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
       } else {
         for (let i = 0; i < testCasesToRun.length; i++) {
           const tc = testCasesToRun[i];
-          const res = await spawnAndWait('java', ['Main', i.toString()], tempDir);
+          const args = isStdio ? ['-Xmx256M', 'Main'] : ['-Xmx256M', 'Main', i.toString()];
+          const stdin = isStdio ? tc.input : null;
+          const res = await spawnAndWait('java', args, tempDir, stdin);
           
           const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
           if (res.status === 'PASS') {
-            if (res.actual === tc.expected) {
+            if (compareOutput(res.actual, tc.expected)) {
               passedCount++;
               formattedResult.status = 'PASS';
             } else {

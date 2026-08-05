@@ -59,12 +59,12 @@ const CodeParticles = () => {
         {particles.map(p => (
           <motion.div
             key={p.id}
-            initial={{ opacity: 1, x: p.x - 20, y: p.y - 20, scale: 0.5 }}
-            animate={{ opacity: 0, y: p.y - 120, scale: 1.5 }}
+            initial={{ opacity: 1, x: p.x - 30, y: p.y - 30, scale: 1 }}
+            animate={{ opacity: 0, y: p.y - 150, scale: 3.5 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-            className="absolute font-mono text-xs font-bold opacity-30 shadow-sm"
-            style={{ color: p.color, textShadow: `0 0 8px ${p.color}` }}
+            transition={{ duration: 1.8, ease: 'easeOut' }}
+            className="absolute font-mono text-3xl font-bold opacity-60 shadow-md"
+            style={{ color: p.color, textShadow: `0 0 15px ${p.color}` }}
           >
             {p.symbol}
           </motion.div>

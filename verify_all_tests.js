@@ -3,44 +3,127 @@ const problems = require('./backend/problems');
 
 const solutions = {
   mergeSort: {
-    java: `class Solution {
-    public static void merge(int[] nums1, int m, int[] nums2, int n) {
-        int i = m - 1;
-        int j = n - 1;
-        int k = m + n - 1;
-        while (j >= 0) {
-            if (i >= 0 && nums1[i] > nums2[j]) {
-                nums1[k--] = nums1[i--];
+    java: `import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        if (!sc.hasNextInt()) return;
+        int n = sc.nextInt();
+        int[] a = new int[n];
+
+        for (int i = 0; i < n; i++)
+            a[i] = sc.nextInt();
+
+        if (!sc.hasNextInt()) return;
+        int m = sc.nextInt();
+        int[] b = new int[m];
+
+        for (int i = 0; i < m; i++)
+            b[i] = sc.nextInt();
+
+        int[] result = new int[n + m];
+
+        int i = 0, j = 0, k = 0;
+
+        while (i < n && j < m) {
+            if (a[i] <= b[j]) {
+                result[k++] = a[i++];
             } else {
-                nums1[k--] = nums2[j--];
+                result[k++] = b[j++];
             }
+        }
+
+        while (i < n)
+            result[k++] = a[i++];
+
+        while (j < m)
+            result[k++] = b[j++];
+
+        for (int x = 0; x < result.length; x++) {
+            System.out.print(result[x]);
+            if (x < result.length - 1) System.out.print(" ");
         }
     }
 }`,
-    python: `class Solution:
-    def merge(self, nums1, m, nums2, n):
-        i = m - 1
-        j = n - 1
-        k = m + n - 1
-        while j >= 0:
-            if i >= 0 and nums1[i] > nums2[j]:
-                nums1[k] = nums1[i]
-                i -= 1
-            else:
-                nums1[k] = nums2[j]
-                j -= 1
-            k -= 1`,
-    c: `void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
-    int i = m - 1;
-    int j = n - 1;
-    int k = m + n - 1;
-    while (j >= 0) {
-        if (i >= 0 && nums1[i] > nums2[j]) {
-            nums1[k--] = nums1[i--];
-        } else {
-            nums1[k--] = nums2[j--];
-        }
+    python: `import sys
+
+def solve():
+    input_data = sys.stdin.read().split()
+    if not input_data:
+        return
+    n = int(input_data[0])
+    a = [int(x) for x in input_data[1:n+1]]
+    
+    if len(input_data) <= n+1:
+        return
+    m = int(input_data[n+1])
+    b = [int(x) for x in input_data[n+2:n+2+m]]
+
+    i = 0
+    j = 0
+    result = []
+
+    while i < n and j < m:
+        if a[i] <= b[j]:
+            result.append(a[i])
+            i += 1
+        else:
+            result.append(b[j])
+            j += 1
+
+    while i < n:
+        result.append(a[i])
+        i += 1
+
+    while j < m:
+        result.append(b[j])
+        j += 1
+
+    print(*(result))
+
+if __name__ == '__main__':
+    solve()`,
+    c: `#include <stdio.h>
+
+int main() {
+    int n, m;
+
+    if (scanf("%d", &n) != 1) return 0;
+    int a[n > 0 ? n : 1];
+    for (int i = 0; i < n; i++)
+        scanf("%d", &a[i]);
+
+    if (scanf("%d", &m) != 1) return 0;
+    int b[m > 0 ? m : 1];
+    for (int i = 0; i < m; i++)
+        scanf("%d", &b[i]);
+
+    int result[n + m > 0 ? n + m : 1];
+
+    int i = 0, j = 0, k = 0;
+
+    while (i < n && j < m) {
+        if (a[i] <= b[j])
+            result[k++] = a[i++];
+        else
+            result[k++] = b[j++];
     }
+
+    while (i < n)
+        result[k++] = a[i++];
+
+    while (j < m)
+        result[k++] = b[j++];
+
+    for (int x = 0; x < n + m; x++) {
+        printf("%d", result[x]);
+        if (x < n + m - 1) printf(" ");
+    }
+
+    return 0;
 }`
   },
   binarySearch: {
