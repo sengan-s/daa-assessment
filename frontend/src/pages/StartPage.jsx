@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useStore from '../store/useStore';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Clock, ShieldAlert, AlertTriangle, Save, LogOut } from 'lucide-react';
 
 // Lightweight Particle Component
 const CodeParticles = () => {
@@ -82,6 +82,7 @@ export default function StartPage() {
   const [error, setError] = useState('');
   const [typewriterText, setTypewriterText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showRulesModal, setShowRulesModal] = useState(false);
   
   const fullText = "<Login success={true} />";
   
@@ -131,9 +132,13 @@ export default function StartPage() {
 
     setIsSuccess(true);
     setTimeout(() => {
-      setCandidate({ rollNo: rollNo.toUpperCase(), name });
-      navigate('/assessment');
+      setShowRulesModal(true);
     }, 1200);
+  };
+
+  const proceedToExam = () => {
+    setCandidate({ rollNo: rollNo.toUpperCase(), name });
+    navigate('/assessment');
   };
 
   const handleAdminLogin = async (e) => {
@@ -363,6 +368,71 @@ export default function StartPage() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Exam Rules Modal */}
+      <AnimatePresence>
+        {showRulesModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#05081c]/80 backdrop-blur-xl px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-[#0a0e2a] border border-brand-pink/30 rounded-3xl p-8 max-w-2xl w-full shadow-[0_0_50px_rgba(247,37,133,0.2)] flex flex-col md:flex-row gap-8 relative overflow-hidden"
+            >
+              {/* Mascot Section */}
+              <div className="md:w-1/3 flex flex-col items-center justify-center relative">
+                <div className="absolute inset-0 bg-brand-pink/10 blur-[50px] rounded-full"></div>
+                <img 
+                  src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Princess.png" 
+                  alt="Exam Mascot" 
+                  className="w-48 h-48 object-contain drop-shadow-2xl relative z-10"
+                />
+                <h3 className="text-xl font-bold text-white mt-4 relative z-10 text-center">Ready?</h3>
+              </div>
+
+              {/* Rules Section */}
+              <div className="md:w-2/3 flex flex-col justify-center">
+                <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-brand-purple mb-6">Exam Rules</h2>
+                
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-blue-400 mt-0.5 shrink-0" />
+                    <span className="text-slate-300 text-sm">Exam Duration: <strong className="text-white">60 Minutes</strong></span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <ShieldAlert className="w-5 h-5 text-brand-coral mt-0.5 shrink-0" />
+                    <span className="text-slate-300 text-sm"><strong className="text-brand-coral">Copy, Cut, Paste, and Right-Click</strong> are strictly prohibited.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <LogOut className="w-5 h-5 text-brand-coral mt-0.5 shrink-0" />
+                    <span className="text-slate-300 text-sm">Switching tabs or leaving the exam window is not allowed.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" />
+                    <span className="text-slate-300 text-sm">Maximum <strong className="text-yellow-500">3 violations</strong> are allowed. On the 3rd violation, the exam will be automatically submitted.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Save className="w-5 h-5 text-green-400 mt-0.5 shrink-0" />
+                    <span className="text-slate-300 text-sm">Answers are <strong className="text-green-400">auto-saved</strong> during the exam.</span>
+                  </li>
+                </ul>
+
+                <button 
+                  onClick={proceedToExam}
+                  className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transform hover:-translate-y-1"
+                >
+                  Start Exam Now
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import useStore from '../store/useStore';
+import useStore, { DEFAULT_CODE } from '../store/useStore';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
-import { Play, Send, CheckCircle, XCircle, AlertTriangle, LogOut, Loader2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Play, Send, CheckCircle, XCircle, AlertTriangle, LogOut, Loader2, ChevronRight, ChevronLeft, RotateCcw } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const PROBLEMS = [
@@ -102,10 +102,23 @@ export default function AssessmentPage() {
       }
     };
 
+    const blockAction = (e) => {
+      e.preventDefault();
+      handleAntiCheatViolation('Copy, Cut, Paste, and Right-Click are strictly prohibited.');
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('contextmenu', blockAction);
+    document.addEventListener('copy', blockAction);
+    document.addEventListener('cut', blockAction);
+    document.addEventListener('paste', blockAction);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('contextmenu', blockAction);
+      document.removeEventListener('copy', blockAction);
+      document.removeEventListener('cut', blockAction);
+      document.removeEventListener('paste', blockAction);
     };
   }, []);
 
@@ -368,6 +381,19 @@ export default function AssessmentPage() {
                 <option value="python">Python 3</option>
                 <option value="c">C</option>
               </select>
+              <button 
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to reset your code to the default starter template? All your current changes will be lost.')) {
+                    updateCode(activeTab, language[activeTab], DEFAULT_CODE[language[activeTab]][activeTab]);
+                    toast.success('Code reset to default.');
+                  }
+                }}
+                disabled={isEvaluating}
+                className="flex items-center gap-1 bg-brand-bg2 hover:bg-brand-coral/20 hover:text-brand-coral border border-brand-pink/40 hover:border-brand-coral/40 px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-50"
+                title="Reset Code to Default"
+              >
+                <RotateCcw className="w-4 h-4" /> Reset
+              </button>
               <button 
                 onClick={() => handleRun(false)}
                 disabled={isEvaluating}

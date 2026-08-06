@@ -1,6 +1,24 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export const DEFAULT_CODE = {
+  java: {
+    mergeSort: `import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        // write your code here\n    }\n}`,
+    binarySearch: `class Solution {\n    public static int binarySearch(int[] arr, int target) {\n        // candidate writes code here\n        return -1;\n    }\n}`,
+    matrixMult: `class Solution {\n    public static int[][] multiply(int[][] A, int[][] B) {\n        // candidate writes code here\n        return new int[0][0];\n    }\n}`
+  },
+  python: {
+    mergeSort: `# write your code here`,
+    binarySearch: `class Solution:\n    def binarySearch(self, arr, target):\n        # candidate writes code here\n        return -1`,
+    matrixMult: `class Solution:\n    def multiply(self, A, B):\n        # candidate writes code here\n        return []`
+  },
+  c: {
+    mergeSort: `#include <stdio.h>\n\nint main() {\n    // write your code here\n    return 0;\n}`,
+    binarySearch: `int binarySearch(int* arr, int arrSize, int target) {\n    // candidate writes code here\n    return -1;\n}`,
+    matrixMult: `void multiply(int* A, int A_rows, int A_cols, int* B, int B_rows, int B_cols, int* res) {\n    // candidate writes code here\n}`
+  }
+};
+
 const useStore = create(
   persist(
     (set) => ({
@@ -31,23 +49,7 @@ const useStore = create(
       })),
 
       // Problem Code State per language
-      code: {
-        java: {
-          mergeSort: `import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        // write your code here\n    }\n}`,
-          binarySearch: `class Solution {\n    public static int binarySearch(int[] arr, int target) {\n        // candidate writes code here\n        return -1;\n    }\n}`,
-          matrixMult: `class Solution {\n    public static int[][] multiply(int[][] A, int[][] B) {\n        // candidate writes code here\n        return new int[0][0];\n    }\n}`
-        },
-        python: {
-          mergeSort: `# write your code here`,
-          binarySearch: `class Solution:\n    def binarySearch(self, arr, target):\n        # candidate writes code here\n        return -1`,
-          matrixMult: `class Solution:\n    def multiply(self, A, B):\n        # candidate writes code here\n        return []`
-        },
-        c: {
-          mergeSort: `#include <stdio.h>\n\nint main() {\n    // write your code here\n    return 0;\n}`,
-          binarySearch: `int binarySearch(int* arr, int arrSize, int target) {\n    // candidate writes code here\n    return -1;\n}`,
-          matrixMult: `void multiply(int* A, int A_rows, int A_cols, int* B, int B_rows, int B_cols, int* res) {\n    // candidate writes code here\n}`
-        }
-      },
+      code: DEFAULT_CODE,
       updateCode: (problemId, lang, newCode) => set((state) => ({
         code: { 
           ...state.code, 
