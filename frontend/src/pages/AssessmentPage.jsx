@@ -102,23 +102,10 @@ export default function AssessmentPage() {
       }
     };
 
-    const blockAction = (e) => {
-      e.preventDefault();
-      handleAntiCheatViolation('Copy, Cut, Paste, and Right-Click are strictly prohibited.');
-    };
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    document.addEventListener('contextmenu', blockAction);
-    document.addEventListener('copy', blockAction);
-    document.addEventListener('cut', blockAction);
-    document.addEventListener('paste', blockAction);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      document.removeEventListener('contextmenu', blockAction);
-      document.removeEventListener('copy', blockAction);
-      document.removeEventListener('cut', blockAction);
-      document.removeEventListener('paste', blockAction);
     };
   }, []);
 

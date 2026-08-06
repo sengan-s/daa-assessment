@@ -405,10 +405,6 @@ export default function StartPage() {
                     <span className="text-slate-300 text-sm">Exam Duration: <strong className="text-white">60 Minutes</strong></span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <ShieldAlert className="w-5 h-5 text-brand-coral mt-0.5 shrink-0" />
-                    <span className="text-slate-300 text-sm"><strong className="text-brand-coral">Copy, Cut, Paste, and Right-Click</strong> are strictly prohibited.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
                     <LogOut className="w-5 h-5 text-brand-coral mt-0.5 shrink-0" />
                     <span className="text-slate-300 text-sm">Switching tabs or leaving the exam window is not allowed.</span>
                   </li>

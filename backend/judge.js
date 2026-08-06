@@ -1,56 +1,135 @@
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const os = require('os');
 
-function compareOutput(actual, expected) {
+let isBwrapAvailable = false;
+try {
+  if (os.platform() === 'linux') {
+    execSync('which bwrap', { stdio: 'ignore' });
+    isBwrapAvailable = true;
+  }
+} catch (e) {
+  isBwrapAvailable = false;
+}
+
+let isPrlimitAvailable = false;
+try {
+  if (os.platform() === 'linux') {
+    execSync('which prlimit', { stdio: 'ignore' });
+    isPrlimitAvailable = true;
+  }
+} catch (e) {
+  isPrlimitAvailable = false;
+}
+
+function compareOutput(actual, expected, validationRules = {}) {
   if (typeof actual !== 'string' || typeof expected !== 'string') return actual === expected;
 
-  const normalize = (str) => {
-    return str
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-      .join('\n');
-  };
+  const normalize = (str) => str.replace(/\r\n/g, '\n').trimEnd();
+  
+  const actStr = normalize(actual);
+  const expStr = normalize(expected);
 
-  const normActual = normalize(actual);
-  const normExpected = normalize(expected);
+  if (actStr === expStr) return true;
 
-  if (normActual === normExpected) return true;
+  if (validationRules.ignoreOrder) {
+    const actSet = actStr.split(/\s+/).filter(t => t.length > 0).sort();
+    const expSet = expStr.split(/\s+/).filter(t => t.length > 0).sort();
+    if (actSet.length !== expSet.length) return false;
+    for (let i = 0; i < actSet.length; i++) {
+       const a = actSet[i];
+       const e = expSet[i];
+       if (a !== e) {
+         const numA = parseFloat(a);
+         const numE = parseFloat(e);
+         if (!isNaN(numA) && !isNaN(numE)) {
+           if (Math.abs(numA - numE) > (validationRules.tolerance || 1e-6)) return false;
+         } else {
+           return false;
+         }
+       }
+    }
+    return true;
+  }
 
-  // Float tolerance check
-  const actualTokens = normActual.split(/\s+/);
-  const expectedTokens = normExpected.split(/\s+/);
+  const actLines = actStr.split('\n').map(l => l.trimEnd());
+  const expLines = expStr.split('\n').map(l => l.trimEnd());
 
-  if (actualTokens.length === expectedTokens.length) {
-    let allMatch = true;
-    for (let i = 0; i < actualTokens.length; i++) {
-      const a = actualTokens[i];
-      const e = expectedTokens[i];
-      if (a !== e) {
-        const numA = parseFloat(a);
-        const numE = parseFloat(e);
+  while (actLines.length > 0 && actLines[actLines.length - 1] === '') actLines.pop();
+  while (expLines.length > 0 && expLines[expLines.length - 1] === '') expLines.pop();
+
+  if (actLines.length !== expLines.length) return false;
+
+  const tolerance = validationRules.tolerance !== undefined ? validationRules.tolerance : 1e-6;
+
+  for (let i = 0; i < actLines.length; i++) {
+    const a = actLines[i];
+    const e = expLines[i];
+    if (a === e) continue;
+
+    const actTokens = a.split(/\s+/).filter(t => t.length > 0);
+    const expTokens = e.split(/\s+/).filter(t => t.length > 0);
+
+    if (actTokens.length !== expTokens.length) return false;
+
+    for (let j = 0; j < actTokens.length; j++) {
+      if (actTokens[j] !== expTokens[j]) {
+        const numA = parseFloat(actTokens[j]);
+        const numE = parseFloat(expTokens[j]);
         if (!isNaN(numA) && !isNaN(numE)) {
-          if (Math.abs(numA - numE) > 1e-5) {
-            allMatch = false;
-            break;
+          if (Math.abs(numA - numE) > tolerance) {
+            return false;
           }
         } else {
-          allMatch = false;
-          break;
+          return false;
         }
       }
     }
-    if (allMatch) return true;
   }
 
-  return false;
+  return true;
 }
 
 function spawnAndWait(command, args, cwd, stdinData = null) {
   return new Promise((resolve) => {
-    const child = spawn(command, args, { cwd });
+    const TIME_LIMIT_MS = 5000;
+    const MEMORY_LIMIT_BYTES = 256 * 1024 * 1024; // 256MB
+    
+    let finalCommand = command;
+    let finalArgs = args;
+
+    if (isBwrapAvailable) {
+      finalCommand = 'bwrap';
+      finalArgs = [
+        '--ro-bind', '/', '/',
+        '--dev', '/dev',
+        '--proc', '/proc',
+        '--tmpfs', '/tmp',
+        '--bind', cwd, cwd,
+        '--unshare-all',
+        '--die-with-parent',
+        '--setenv', 'PATH', process.env.PATH || '/usr/bin:/bin'
+      ];
+      if (isPrlimitAvailable) {
+        finalArgs.push('prlimit', `--cpu=${Math.ceil(TIME_LIMIT_MS / 1000)}`);
+        if (command !== 'java') {
+          finalArgs.push(`--as=${MEMORY_LIMIT_BYTES}`);
+        }
+      }
+      finalArgs.push(command, ...args);
+    } else if (isPrlimitAvailable) {
+      finalCommand = 'prlimit';
+      finalArgs = [
+        `--cpu=${Math.ceil(TIME_LIMIT_MS / 1000)}`
+      ];
+      if (command !== 'java') {
+        finalArgs.push(`--as=${MEMORY_LIMIT_BYTES}`);
+      }
+      finalArgs.push(command, ...args);
+    }
+
+    const child = spawn(finalCommand, finalArgs, { cwd });
     let output = '';
     let runtimeError = '';
     let isTimeout = false;
@@ -63,42 +142,30 @@ function spawnAndWait(command, args, cwd, stdinData = null) {
 
     const timeoutTimer = setTimeout(() => {
       isTimeout = true;
-      try { child.kill('SIGKILL'); } catch(e) {}
-    }, 5000);
-
-    // Simple memory check heuristic (can be improved in a real sandbox)
-    const memCheckTimer = setInterval(() => {
-      try {
-        if (child.pid && os.platform() !== 'win32') {
-          // If we had a cross-platform way to check child memory precisely, we'd do it here.
-          // For now, we rely on Java's -Xmx or OS limits.
-        }
-      } catch (e) {}
-    }, 500);
+      try { process.kill(child.pid, 'SIGKILL'); } catch(e) {}
+    }, TIME_LIMIT_MS);
 
     child.stdout.on('data', (data) => {
       output += data.toString();
-      // hard limit on output size (10MB) to prevent OOM
-      if (output.length > 10 * 1024 * 1024) {
-        try { child.kill('SIGKILL'); } catch(e) {}
+      if (output.length > 20 * 1024 * 1024) {
+        try { process.kill(child.pid, 'SIGKILL'); } catch(e) {}
       }
     });
 
     child.stderr.on('data', (data) => {
       runtimeError += data.toString();
-      if (runtimeError.includes('java.lang.OutOfMemoryError') || runtimeError.includes('MemoryError')) {
+      if (runtimeError.includes('java.lang.OutOfMemoryError') || runtimeError.includes('MemoryError') || runtimeError.includes('std::bad_alloc')) {
         isMemoryLimit = true;
       }
     });
 
     child.on('error', (err) => resolve({ status: 'RE', details: 'Failed to start process: ' + err.message }));
 
-    child.on('close', (code) => {
+    child.on('close', (code, signal) => {
       clearTimeout(timeoutTimer);
-      clearInterval(memCheckTimer);
-      if (isTimeout) return resolve({ status: 'TLE' });
-      if (isMemoryLimit) return resolve({ status: 'MLE' });
-      if (code !== 0) return resolve({ status: 'RE', details: runtimeError });
+      if (isTimeout || signal === 'SIGKILL' || signal === 'SIGXCPU') return resolve({ status: 'TLE' });
+      if (isMemoryLimit || signal === 'SIGSEGV') return resolve({ status: 'MLE' });
+      if (code !== 0) return resolve({ status: 'RE', details: runtimeError.trim() });
       resolve({ status: 'PASS', actual: output.trim() });
     });
   });
@@ -108,11 +175,23 @@ function compileCode(command, args, cwd) {
   return new Promise((resolve) => {
     const child = spawn(command, args, { cwd });
     let compileError = '';
+    
+    const timeoutTimer = setTimeout(() => {
+      try { process.kill(child.pid, 'SIGKILL'); } catch(e) {}
+    }, 10000); // 10s compile limit
+
     child.stderr.on('data', (data) => {
       compileError += data.toString();
     });
-    child.on('error', (err) => resolve({ success: false, error: 'Failed to start compiler: ' + err.message }));
-    child.on('close', (code) => {
+    
+    child.on('error', (err) => {
+      clearTimeout(timeoutTimer);
+      resolve({ success: false, error: 'Failed to start compiler: ' + err.message });
+    });
+    
+    child.on('close', (code, signal) => {
+      clearTimeout(timeoutTimer);
+      if (signal === 'SIGKILL') return resolve({ success: false, error: 'Compilation Time Limit Exceeded' });
       if (code !== 0) {
         return resolve({ success: false, error: compileError });
       }
@@ -138,7 +217,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
         
         const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
         if (res.status === 'PASS') {
-          if (compareOutput(res.actual, tc.expected)) {
+          if (compareOutput(res.actual, tc.expected, problem.validationRules || {})) {
             passedCount++;
             formattedResult.status = 'AC';
           } else {
@@ -157,7 +236,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
       const mainFile = path.join(tempDir, 'main.c');
       fs.writeFileSync(mainFile, solutionCode);
 
-      const compRes = await compileCode('gcc', ['main.c', '-o', 'main'], tempDir);
+      const compRes = await compileCode('gcc', ['main.c', '-o', 'main', '-O2', '-lm'], tempDir);
       if (!compRes.success) {
         for (let i = 0; i < testCasesToRun.length; i++) {
           const formattedResult = {
@@ -174,7 +253,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
           
           const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
           if (res.status === 'PASS') {
-            if (compareOutput(res.actual, tc.expected)) {
+            if (compareOutput(res.actual, tc.expected, problem.validationRules || {})) {
               passedCount++;
               formattedResult.status = 'AC';
             } else {
@@ -193,7 +272,6 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
     else {
       // Java
       const mainFile = path.join(tempDir, 'Main.java');
-      // For Java, replace public class ... with class Main so it matches filename
       const javaCode = solutionCode.replace(/public\s+class\s+[A-Za-z0-9_]+/g, 'class Main');
       fs.writeFileSync(mainFile, javaCode);
 
@@ -213,7 +291,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
           
           const formattedResult = { index: i + 1, isHidden: tc.isHidden, status: res.status };
           if (res.status === 'PASS') {
-            if (compareOutput(res.actual, tc.expected)) {
+            if (compareOutput(res.actual, tc.expected, problem.validationRules || {})) {
               passedCount++;
               formattedResult.status = 'AC';
             } else {

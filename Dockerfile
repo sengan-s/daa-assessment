@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get install -y curl gnupg2 software-properties-common && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
-    apt-get install -y default-jdk python3 python3-pip gcc g++ make && \
+    apt-get install -y default-jdk python3 python3-pip gcc g++ make bubblewrap util-linux && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
