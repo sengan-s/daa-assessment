@@ -434,7 +434,7 @@ export default function AssessmentPage() {
               height="100%"
               language={language[activeTab]}
               theme="vs-dark"
-              value={code[language[activeTab]]?.[activeTab] || ''}
+              value={code[language[activeTab]]?.[activeTab] || DEFAULT_CODE[language[activeTab]]?.[activeTab] || ''}
               onChange={handleEditorChange}
               options={{
                 minimap: { enabled: false },

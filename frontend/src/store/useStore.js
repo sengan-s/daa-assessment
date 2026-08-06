@@ -25,7 +25,7 @@ const useStore = create(
       // Candidate Details
       candidate: null, // { rollNo: '', name: '' }
       setCandidate: (candidate) => set({ candidate }),
-      clearCandidate: () => set({ candidate: null, code: {}, warnings: 0, timeLeft: 3600, isSubmitted: false, score: null, marks: null }),
+      clearCandidate: () => set({ candidate: null, code: DEFAULT_CODE, warnings: 0, timeLeft: 3600, isSubmitted: false, score: null, marks: null }),
 
       // Admin State
       isAdminAuthenticated: false,
