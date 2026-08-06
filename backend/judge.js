@@ -99,26 +99,7 @@ function spawnAndWait(command, args, cwd, stdinData = null) {
     let finalCommand = command;
     let finalArgs = args;
 
-    if (isBwrapAvailable) {
-      finalCommand = 'bwrap';
-      finalArgs = [
-        '--ro-bind', '/', '/',
-        '--dev', '/dev',
-        '--proc', '/proc',
-        '--tmpfs', '/tmp',
-        '--bind', cwd, cwd,
-        '--unshare-all',
-        '--die-with-parent',
-        '--setenv', 'PATH', process.env.PATH || '/usr/bin:/bin'
-      ];
-      if (isPrlimitAvailable) {
-        finalArgs.push('prlimit', `--cpu=${Math.ceil(TIME_LIMIT_MS / 1000)}`);
-        if (command !== 'java') {
-          finalArgs.push(`--as=${MEMORY_LIMIT_BYTES}`);
-        }
-      }
-      finalArgs.push(command, ...args);
-    } else if (isPrlimitAvailable) {
+    if (isPrlimitAvailable) {
       finalCommand = 'prlimit';
       finalArgs = [
         `--cpu=${Math.ceil(TIME_LIMIT_MS / 1000)}`
