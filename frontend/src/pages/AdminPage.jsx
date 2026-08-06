@@ -55,14 +55,18 @@ export default function AdminPage() {
           rollNo: row.roll_no,
           name: row.student_name,
           totalScore: row.total_marks,
-          mergeSortMarks: d.results?.mergeSort?.marks || 0,
-          binarySearchMarks: d.results?.binarySearch?.marks || 0,
-          matrixMultMarks: d.results?.matrixMult?.marks || 0,
-          timeTaken: 3600 - (d.timeRemaining || 3600),
-          violations: d.warnings || 0,
+          mergeSortMarks: d.scores?.mergeSort || 0,
+          binarySearchMarks: d.scores?.binarySearch || 0,
+          matrixMultMarks: d.scores?.matrixMult || 0,
+          timeTaken: d.timeTaken || 0,
+          violations: d.violations || 0,
           submittedAt: row.submitted_at,
-          code: d.code,
-          runResults: d.results
+          codeMergeSort: d.codePerProblem?.mergeSort || '',
+          languageMergeSort: d.languagePerProblem?.mergeSort || '',
+          codeBinarySearch: d.codePerProblem?.binarySearch || '',
+          languageBinarySearch: d.languagePerProblem?.binarySearch || '',
+          codeMatrixMult: d.codePerProblem?.matrixMult || '',
+          languageMatrixMult: d.languagePerProblem?.matrixMult || ''
         };
       });
 

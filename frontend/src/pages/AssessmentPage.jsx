@@ -31,16 +31,16 @@ export default function AssessmentPage() {
   const [activeTab, setActiveTab] = useState('mergeSort');
   const [problemDetails, setProblemDetails] = useState({
     mergeSort: { 
-      desc: "You are given two sorted arrays. Merge them into one sorted array.",
-      samples: "Input:\n4\n1 3 5 7\n3\n2 4 6\n\nOutput:\n1 2 3 4 5 6 7"
+      desc: "You are given two sorted arrays of integers. Your task is to merge these two arrays into a single sorted array and output the result.\n\nConstraints:\n- The sizes of both arrays are between 0 and 10^4.\n- The elements in the arrays are sorted in non-decreasing order.\n\nInput Format:\n- The first line contains an integer N, the size of the first array.\n- The second line contains N space-separated integers, representing the first array.\n- The third line contains an integer M, the size of the second array.\n- The fourth line contains M space-separated integers, representing the second array.\n\nOutput Format:\n- Output a single line containing the merged sorted array, with elements separated by a single space.",
+      samples: "Example 1:\nInput:\n4\n1 3 5 7\n3\n2 4 6\n\nOutput:\n1 2 3 4 5 6 7\n\nExplanation for Example 1:\nArray 1 has 4 elements: [1, 3, 5, 7]\nArray 2 has 3 elements: [2, 4, 6]\nMerging them in sorted order gives: [1, 2, 3, 4, 5, 6, 7]\n\nExample 2:\nInput:\n0\n\n1\n1\n\nOutput:\n1\n\nExplanation for Example 2:\nArray 1 has 0 elements: [] (empty)\nArray 2 has 1 element: [1]\nMerging them gives: [1]"
     },
     binarySearch: {
-      desc: "Given a sorted array and a target, return the index of target, or -1 if not found.",
-      samples: "Input: arr=[1,3,5,7,9,11], target=7 → Output: 3"
+      desc: "Given an array of integers sorted in ascending order and a target value, write a function to search the target in the array. If the target exists, then return its index. Otherwise, return -1.\n\nYou must write an algorithm with O(log n) runtime complexity.\n\nConstraints:\n- 1 <= arr.length <= 10^4\n- -10^4 < arr[i], target < 10^4\n- All the integers in the array are unique.\n- The array is sorted in ascending order.\n\nInput Format:\n- The first line contains an integer N, the size of the array.\n- The second line contains N space-separated integers, representing the sorted array.\n- The third line contains an integer T, representing the target value to search for.\n\nOutput Format:\n- Output a single integer representing the index of the target in the array (0-indexed), or -1 if the target is not found.",
+      samples: "Example 1:\nInput:\n6\n1 3 5 7 9 11\n7\n\nOutput:\n3\n\nExplanation for Example 1:\nThe array is [1, 3, 5, 7, 9, 11].\nThe target is 7.\nSince 7 exists in the array at index 3 (0-indexed), the output is 3.\n\nExample 2:\nInput:\n4\n2 4 6 8\n5\n\nOutput:\n-1\n\nExplanation for Example 2:\nThe array is [2, 4, 6, 8].\nThe target is 5.\nSince 5 does not exist in the array, the output is -1."
     },
     matrixMult: {
-      desc: "Given matrices A (m x n) and B (n x p), return the product matrix.",
-      samples: "Input: A=[[1,2],[3,4]], B=[[5,6],[7,8]] → Output: [[19,22],[43,50]]"
+      desc: "You are given two matrices, A and B. Your task is to compute their product (A * B).\n\nFor matrix multiplication to be valid, the number of columns in Matrix A must equal the number of rows in Matrix B. The resulting matrix will have the same number of rows as A and the same number of columns as B.\n\nConstraints:\n- Dimensions of the matrices are between 1x1 and 100x100.\n- Matrix elements are integers.\n\nInput Format:\n1. The first line contains two integers: the number of rows (r1) and columns (c1) of Matrix A.\n2. The next r1 lines represent Matrix A, with each line containing c1 space-separated integers.\n3. The following line contains two integers: the number of rows (r2) and columns (c2) of Matrix B.\n4. The next r2 lines represent Matrix B, with each line containing c2 space-separated integers.\n\nOutput Format:\n- Output the resulting multiplied matrix. Print each row on a new line, with elements separated by a single space.",
+      samples: "Example 1:\nInput:\n2 2\n1 2\n3 4\n2 2\n2 0\n1 2\n\nOutput:\n4 4\n10 8\n\nExplanation for Example 1:\nMatrix A is 2x2:\n[1, 2]\n[3, 4]\n\nMatrix B is 2x2:\n[2, 0]\n[1, 2]\n\nResult:\nRow 1: [(1*2 + 2*1), (1*0 + 2*2)] = [4, 4]\nRow 2: [(3*2 + 4*1), (3*0 + 4*2)] = [10, 8]\n\nExample 2:\nInput:\n1 3\n1 2 3\n3 1\n1\n2\n3\n\nOutput:\n14\n\nExplanation for Example 2:\nMatrix A is 1x3: [1, 2, 3]\nMatrix B is 3x1:\n[1]\n[2]\n[3]\n\nResult: [(1*1 + 2*2 + 3*3)] = [14]"
     }
   });
   const [runResults, setRunResults] = useState({});
@@ -52,7 +52,8 @@ export default function AssessmentPage() {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [isSubmittingTotal, setIsSubmittingTotal] = useState(false);
   const editorRef = useRef(null);
-
+  const [showViolation, setShowViolation] = useState(false);
+  const [violationMessage, setViolationMessage] = useState('');
   useEffect(() => {
     if (!candidate) {
       navigate('/');
@@ -80,7 +81,15 @@ export default function AssessmentPage() {
     const handleAntiCheatViolation = (message) => {
       incrementWarning();
       const currentWarnings = useStore.getState().warnings;
+      
+      setViolationMessage(`WARNING [${currentWarnings}/3]: ${message}`);
+      setShowViolation(true);
       toast.error(`Warning [${currentWarnings}/3]: ${message}`, { duration: 4000 });
+      
+      setTimeout(() => {
+        setShowViolation(false);
+      }, 3000);
+
       if (currentWarnings >= 3) {
         toast.error('Maximum warnings reached. Auto-submitting...');
         handleFinalSubmit(true);
@@ -416,6 +425,18 @@ export default function AssessmentPage() {
         </div>
 
       </div>
+      
+      {/* Centered Violation Overlay */}
+      {showViolation && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-red-950/90 backdrop-blur-md animate-pulse">
+          <div className="bg-red-900 border-4 border-red-500 rounded-2xl p-8 max-w-lg text-center shadow-[0_0_150px_rgba(239,68,68,1)] transform scale-110">
+            <AlertTriangle className="w-24 h-24 text-red-500 mx-auto mb-4 animate-bounce" />
+            <h2 className="text-4xl font-black text-white mb-2 tracking-widest uppercase">Violation Detected</h2>
+            <p className="text-xl text-red-100 font-bold">{violationMessage}</p>
+            <p className="text-red-300 mt-6 text-sm font-semibold uppercase tracking-widest">Your activity is being monitored</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
