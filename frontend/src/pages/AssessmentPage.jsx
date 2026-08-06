@@ -87,34 +87,15 @@ export default function AssessmentPage() {
       }
     };
 
-    const handleCopyPaste = (e) => {
-      e.preventDefault();
-      handleAntiCheatViolation('Copy-paste is not allowed during this assessment.');
-    };
-
     const handleVisibilityChange = () => {
       if (document.hidden) {
         handleAntiCheatViolation('Tab switching is not allowed during this assessment.');
       }
     };
 
-    const blockKeys = (e) => {
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'x')) {
-        handleCopyPaste(e);
-      }
-    };
-
-    document.addEventListener('copy', handleCopyPaste);
-    document.addEventListener('paste', handleCopyPaste);
-    document.addEventListener('cut', handleCopyPaste);
-    document.addEventListener('keydown', blockKeys);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      document.removeEventListener('copy', handleCopyPaste);
-      document.removeEventListener('paste', handleCopyPaste);
-      document.removeEventListener('cut', handleCopyPaste);
-      document.removeEventListener('keydown', blockKeys);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
