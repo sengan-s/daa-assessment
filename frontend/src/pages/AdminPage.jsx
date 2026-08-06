@@ -137,7 +137,7 @@ export default function AdminPage() {
         r.violations,
         r.submittedAt
       ].join(','))
-    ].join('\\n');
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -231,15 +231,15 @@ export default function AdminPage() {
                       <td className="p-4 font-mono text-sm">{r.rollNo}</td>
                       <td className="p-4 font-medium">{r.name}</td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${r.totalScore >= 40 ? 'bg-brand-pass/20 text-brand-pass' : r.totalScore >= 20 ? 'bg-yellow-900/50 text-yellow-400' : 'bg-brand-coral/20 text-brand-coral'}`}>
-                          {r.totalScore} / 50
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${r.totalScore >= 35 ? 'bg-brand-pass/20 text-brand-pass' : r.totalScore >= 15 ? 'bg-yellow-900/50 text-yellow-400' : 'bg-brand-coral/20 text-brand-coral'}`}>
+                          {r.totalScore} / 45
                         </span>
                       </td>
                       <td className="p-4 text-xs text-slate-400">
                         <div className="flex gap-3">
                           <span title="Merge Sort">M: {r.mergeSortMarks}/15</span>
                           <span title="Binary Search">B: {r.binarySearchMarks}/15</span>
-                          <span title="Matrix Mult">X: {r.matrixMultMarks}/20</span>
+                          <span title="Matrix Mult">X: {r.matrixMultMarks}/15</span>
                         </div>
                       </td>
                       <td className="p-4">
@@ -305,7 +305,7 @@ export default function AdminPage() {
                                 <span className="font-medium text-sm text-blue-300">
                                   Matrix Multiplication <span className="text-xs uppercase bg-slate-700 px-1 rounded ml-1 text-slate-400">{r.languageMatrixMult}</span>
                                 </span>
-                                <span className="text-xs px-2 py-0.5 rounded bg-slate-700">{r.matrixMultMarks}/20</span>
+                                <span className="text-xs px-2 py-0.5 rounded bg-slate-700">{r.matrixMultMarks}/15</span>
                               </div>
                               <pre className="text-xs text-slate-300 overflow-auto max-h-64 scrollbar-thin scrollbar-thumb-slate-600">
                                 <code>{r.codeMatrixMult || 'No code submitted'}</code>

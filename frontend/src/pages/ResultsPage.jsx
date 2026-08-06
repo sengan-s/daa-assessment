@@ -71,7 +71,7 @@ export default function ResultsPage() {
         <div className="bg-brand-bg2/50 backdrop-blur-md rounded-xl p-6 mb-8 text-center border border-brand-pink/20">
           <p className="text-slate-400 font-semibold mb-2 uppercase tracking-wide">Final Score</p>
           <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-brand-purple">
-            {displayScore} <span className="text-3xl text-slate-500">/ 50</span>
+            {displayScore} <span className="text-3xl text-slate-500">/ 45</span>
           </div>
         </div>
 
@@ -86,13 +86,13 @@ export default function ResultsPage() {
           </div>
           <div className="bg-brand-bg2/40 p-4 rounded-lg border border-brand-pink/20">
             <div className="text-slate-400 text-sm mb-1">Matrix Multiplication</div>
-            <div className="text-xl font-bold text-white">{marks.matrixMult} <span className="text-sm text-slate-500">/ 20</span></div>
+            <div className="text-xl font-bold text-white">{marks.matrixMult} <span className="text-sm text-slate-500">/ 15</span></div>
           </div>
         </div>
 
         {/* Achievements / Badges */}
         <div className="flex justify-center gap-4 mb-8">
-          {score === 50 && (
+          {score === 45 && (
             <div className="flex items-center gap-2 bg-yellow-900/30 text-yellow-500 px-3 py-1.5 rounded-full border border-yellow-700/50 text-sm font-semibold">
               <Award className="w-4 h-4" /> Perfectionist
             </div>

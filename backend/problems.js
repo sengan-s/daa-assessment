@@ -59,7 +59,7 @@ int main() {
     id: 'matrixMult',
     title: 'Matrix Multiplication',
     type: 'stdio',
-    marks: 20,
+    marks: 15,
     starterCode: `import java.util.*;
 
 class Main {

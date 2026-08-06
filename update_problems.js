@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
   matrixMult: {
     id: 'matrixMult',
     title: 'Matrix Multiplication',
-    marks: 20,
+    marks: 15,
     starterCode: \`class Solution {
     public static int[][] multiply(int[][] A, int[][] B) {
         // candidate writes code here
