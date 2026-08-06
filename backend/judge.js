@@ -189,7 +189,8 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
   try {
     if (language === 'python') {
       const mainFile = path.join(tempDir, 'main.py');
-      fs.writeFileSync(mainFile, solutionCode);
+      const pyCode = `import sys\nimport math\nimport collections\nimport itertools\n\n${solutionCode}\n\n${problem.wrapperCodePython || ''}`;
+      fs.writeFileSync(mainFile, pyCode);
 
       for (let i = 0; i < testCasesToRun.length; i++) {
         const tc = testCasesToRun[i];
@@ -215,7 +216,8 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
     } 
     else if (language === 'c') {
       const mainFile = path.join(tempDir, 'main.c');
-      fs.writeFileSync(mainFile, solutionCode);
+      const cCode = `#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n#include <stdbool.h>\n\n${solutionCode}\n\n${problem.wrapperCodeC || ''}`;
+      fs.writeFileSync(mainFile, cCode);
 
       const compRes = await compileCode('gcc', ['main.c', '-o', 'main', '-O2', '-lm'], tempDir);
       if (!compRes.success) {
@@ -253,7 +255,7 @@ async function evaluateCode(problem, solutionCode, language, testCasesToRun) {
     else {
       // Java
       const mainFile = path.join(tempDir, 'Main.java');
-      const javaCode = solutionCode.replace(/public\s+class\s+[A-Za-z0-9_]+/g, 'class Main');
+      const javaCode = `import java.util.*;\nimport java.io.*;\n\n${solutionCode}\n\n${problem.wrapperCodeJava || ''}`;
       fs.writeFileSync(mainFile, javaCode);
 
       const compRes = await compileCode('javac', ['Main.java'], tempDir);
