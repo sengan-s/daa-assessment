@@ -3,19 +3,19 @@ import { persist } from 'zustand/middleware';
 
 export const DEFAULT_CODE = {
   java: {
-    mergeSort: `import java.util.*;\n\nclass Main {\n    public static void main(String[] args) {\n        // write your code here\n    }\n}`,
-    binarySearch: `class Solution {\n    public static int binarySearch(int[] arr, int target) {\n        // candidate writes code here\n        return -1;\n    }\n}`,
-    matrixMult: `class Solution {\n    public static int[][] multiply(int[][] A, int[][] B) {\n        // candidate writes code here\n        return new int[0][0];\n    }\n}`
+    mergeSort: `class Solution {\n    public int[] mergeArrays(int[] arr1, int[] arr2) {\n        // write your code here\n        return new int[0];\n    }\n}`,
+    binarySearch: `class Solution {\n    public int search(int[] nums, int target) {\n        // write your code here\n        return -1;\n    }\n}`,
+    matrixMult: `class Solution {\n    public int[][] multiply(int[][] mat1, int[][] mat2) {\n        // write your code here\n        return new int[0][0];\n    }\n}`
   },
   python: {
-    mergeSort: `# write your code here`,
-    binarySearch: `class Solution:\n    def binarySearch(self, arr, target):\n        # candidate writes code here\n        return -1`,
-    matrixMult: `class Solution:\n    def multiply(self, A, B):\n        # candidate writes code here\n        return []`
+    mergeSort: `class Solution:\n    def mergeArrays(self, arr1, arr2):\n        # write your code here\n        pass\n`,
+    binarySearch: `class Solution:\n    def search(self, nums, target):\n        # write your code here\n        pass\n`,
+    matrixMult: `class Solution:\n    def multiply(self, mat1, mat2):\n        # write your code here\n        pass\n`
   },
   c: {
-    mergeSort: `#include <stdio.h>\n\nint main() {\n    // write your code here\n    return 0;\n}`,
-    binarySearch: `int binarySearch(int* arr, int arrSize, int target) {\n    // candidate writes code here\n    return -1;\n}`,
-    matrixMult: `void multiply(int* A, int A_rows, int A_cols, int* B, int B_rows, int B_cols, int* res) {\n    // candidate writes code here\n}`
+    mergeSort: `int* mergeArrays(int* arr1, int size1, int* arr2, int size2, int* retSize) {\n    // write your code here\n    *retSize = 0;\n    return NULL;\n}`,
+    binarySearch: `int search(int* nums, int size, int target) {\n    // write your code here\n    return -1;\n}`,
+    matrixMult: `int** multiply(int** mat1, int r1, int c1, int** mat2, int r2, int c2, int* retR, int** retC) {\n    // write your code here\n    *retR = 0;\n    *retC = NULL;\n    return NULL;\n}`
   }
 };
 
