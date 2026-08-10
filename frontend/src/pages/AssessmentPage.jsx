@@ -102,10 +102,24 @@ export default function AssessmentPage() {
       }
     };
 
+    const handleCopy = (e) => {
+      e.preventDefault();
+      handleAntiCheatViolation('Copying content is not allowed during this assessment.');
+    };
+
+    const handlePaste = (e) => {
+      e.preventDefault();
+      handleAntiCheatViolation('Pasting code is not allowed during this assessment.');
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('copy', handleCopy);
+    document.addEventListener('paste', handlePaste);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('copy', handleCopy);
+      document.removeEventListener('paste', handlePaste);
     };
   }, []);
 
