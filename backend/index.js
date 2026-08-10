@@ -7,6 +7,34 @@ const problems = require('./problems');
 const { evaluateCode } = require('./judge');
 
 // Initialize SQLite Database
+class Semaphore {
+  constructor(max) {
+    this.max = max;
+    this.count = 0;
+    this.queue = [];
+  }
+
+  async acquire() {
+    if (this.count < this.max) {
+      this.count++;
+      return;
+    }
+    return new Promise(resolve => this.queue.push(resolve));
+  }
+
+  release() {
+    if (this.queue.length > 0) {
+      const next = this.queue.shift();
+      next();
+    } else {
+      this.count--;
+    }
+  }
+}
+
+// Limit concurrent code evaluations to 10 globally to prevent CPU/RAM crashes
+const evalSemaphore = new Semaphore(10);
+
 const dbPath = process.env.DB_PATH || path.join(__dirname, 'sqlite.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -39,12 +67,17 @@ app.use(bodyParser.json());
 
 // Helper function to evaluate code for a problem
 async function evaluateProblem(problemId, code, language, runHidden) {
-  const problem = problems[problemId];
-  if (!problem) throw new Error('Problem not found');
+  await evalSemaphore.acquire();
+  try {
+    const problem = problems[problemId];
+    if (!problem) throw new Error('Problem not found');
 
-  const testCasesToRun = runHidden ? problem.testCases : problem.testCases.filter(tc => !tc.isHidden);
-  
-  return await evaluateCode(problem, code, language, testCasesToRun);
+    const testCasesToRun = runHidden ? problem.testCases : problem.testCases.filter(tc => !tc.isHidden);
+    
+    return await evaluateCode(problem, code, language, testCasesToRun);
+  } finally {
+    evalSemaphore.release();
+  }
 }
 
 
@@ -72,15 +105,20 @@ app.post('/api/submit', async (req, res) => {
     let totalScore = 0;
     const scores = {};
 
-    for (const [problemId, code] of Object.entries(codePerProblem)) {
+    const evaluationPromises = Object.entries(codePerProblem).map(async ([problemId, code]) => {
       const language = languagePerProblem[problemId] || 'java';
       if (code && code.trim() !== '') {
         const evalResult = await evaluateProblem(problemId, code, language, true);
-        scores[problemId] = evalResult.marks;
-        totalScore += evalResult.marks;
+        return { problemId, marks: evalResult.marks };
       } else {
-        scores[problemId] = 0;
+        return { problemId, marks: 0 };
       }
+    });
+
+    const evalResults = await Promise.all(evaluationPromises);
+    for (const result of evalResults) {
+      scores[result.problemId] = result.marks;
+      totalScore += result.marks;
     }
 
     const { mergeSort, binarySearch, matrixMult } = scores;
